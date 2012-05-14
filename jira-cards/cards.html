@@ -52,7 +52,7 @@
 			}
 
 			var getStoryPoints = function(issue) {
-				return Math.ceil(issue.fields.customfield_10013);
+				return Math.ceil(issue.fields.customfield_10013) || 0;
 			};
 			var getType = function (issue) {
 				return issue.fields.issuetype.name;
