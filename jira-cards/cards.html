@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>pmoney's cards</title>
+		<style type="text/css">
+			body { font-family:sans-serif;  }
+			.card { padding:1em; padding-right:2.5em; margin-bottom:0.5em; height:12em; border:thin outset gray; position:relative; page-break-inside:avoid; }
+			.card .storypoints { position:absolute; bottom:0; right:0; font-size:200%; font-weight:bold; padding:0.5em }
+			.card .header { font-size:190%; font-weight:bold; border-bottom:thin solid gray; }
+			.card .desc { margin-right:3em; font-size:120% }
+			.card .parent { font-weight:bold; font-size:140%; margin-bottom:0.5em }
+			.btn { float:right; clear:both }
+			.close-btn { padding:0.3em; background-color:#dddddd; cursor:pointer; font-weight:bold; float:left; margin-right:1em }
+			@media print {
+				.card:nth-child(4n) { page-break-after: always;}
+				.btn,.interaction { display:none }
+				.card .header { color:black; text-decoration:none }
+			}
+			@media screen {
+				.card .header { cursor:pointer; color:blue; text-decoration:underline }
+			}
+		</style>
+		<link rel="stylesheet" href="theme.css" />
+	</head>
+	<body>
+		<button class="btn" onClick="localStorage.clear(); location.reload()">Clear my saved username and password</button>
+		<div class="container"></div>
+		<script id="card_template" type="text/template">
+			<div class="card {type}" data-rel="{key}">
+				<div class="interaction close-btn" title="Click to hide">&times;</div>
+				<div class="header">{name}</div>
+				<div class="parent">{parent}</div>
+				<div class="desc">{description}</div>
+				<div class="storypoints">{storypoints}</div>
+			</div>
+		</script>
+		<script src="jsonp.js"></script>
+		<script src="jira.js"></script>
+		<script src="cache.js"></script>
+		<script type="text/javascript">
+			var auth = cache.get('auth');
+			if (!auth) {
+				var jiraURL = prompt('JIRA URL (e.g. https://jira.atlassian.com)') || 'https://jira.atlassian.com';
+				var username = prompt('JIRA username');
+				var password = prompt('JIRA password');
+				cache.put('auth', { username: username, password: password, jiraURL: jiraURL });
+			}
+			else {
+				var username = auth.username;
+				var password = auth.password;
+				var jiraURL = auth.jiraURL;
+			}
+
+			var getStoryPoints = function(issue) {
+				return Math.ceil(issue.fields.customfield_10013);
+			};
+			var getType = function (issue) {
+				return issue.fields.issuetype.name;
+			};
+			var getProject = function (issue) {
+				return issue.fields.project.name;
+			};
+			var getParent = function (issue) {
+				return [getProject(issue), getComponents(issue), issue.fields.parent ? issue.fields.parent.fields.summary : ''].filter(function (field) {
+						return field.length;
+						}).join(' - ');
+			};
+			var getDescription = function (issue) {
+				var maxLen = 150;
+				var desc = issue.fields.description;
+				if (!desc) return '';
+				return desc.length > maxLen ? desc.slice(0,maxLen + desc.slice(maxLen).indexOf(' ')) + '...' : desc;
+			};
+			var getComponents = function (issue) {
+				if (!issue.fields.components || !issue.fields.components.length) return '';
+				return issue.fields.components.map(function (component) { return component.name; }).join(', ');
+			};
+			var createCardHTML = function (issue) {
+				return document.querySelector('#card_template').innerHTML.replace('{type}', getType(issue)).replace('{name}', issue.fields.summary).replace('{description}', getDescription(issue)).replace('{storypoints}', getStoryPoints(issue)).replace('{parent}', getParent(issue)).replace('{key}', issue.key);
+			};
+			if (location.search.slice(1)) {
+				var query = unescape(location.search.slice(1).split('&')[0].split('=')[1].replace(/\+/g, ' '));
+				document.querySelector('.container').innerHTML = 'Loading cards...';
+			}
+			var slice = Array.prototype.slice;
+			jira.api(jiraURL + '/rest/api/latest/').search({ jql: query, startAt: 0, maxResults: 100, os_username: username, os_password: password }, function (response) {
+				document.querySelector('.container').innerHTML = '';
+				slice.call(response.issues).forEach(function (d) {
+					document.querySelector('.container').innerHTML += createCardHTML(d);
+				});
+				slice.call(document.querySelectorAll('.close-btn')).forEach(function (card) {
+					card.addEventListener('click', function (event) {
+						event.currentTarget.parentNode.parentNode.removeChild(event.currentTarget.parentNode);
+					}, false);
+				});
+				slice.call(document.querySelectorAll('.header')).forEach(function (card) {
+					card.addEventListener('click', function (event) {
+						var url = event.currentTarget.parentNode.getAttribute('data-rel');
+						open(jiraURL + '/browse/' + url);
+					}, false);
+				});
+			});
+		</script>
+	</body>
+</html>
