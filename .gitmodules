@@ -1,0 +1,3 @@
+[submodule "jira-cards"]
+	path = jira-cards
+	url = git@github.com:pranavraja/jira-cards.git
