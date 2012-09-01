@@ -1,0 +1,161 @@
+<html>
+<head>
+<title>Hari's referencing program</title>
+<style type="text/css">
+body { font-family:sans-serif }
+input { width:20em }
+div#ref { font-family:serif }
+div { clear:left }
+div label { float:left; width:10em }
+</style>
+<script>
+templates = ["%s %s, %s, %s, %s, %s.",
+"%s %s, &lsquo;%s&rsquo;, <i>%s</i>, %s, %s, %s.",
+"%s %s, <i>%s</i>, %s, %s, &lt;%s&gt;.",
+"%s %s, &lsquo;%s&rsquo;, %s, %s, %s, %s, %s."];
+arr = ["author,year,title,edition,publisher,publicationlocation",
+"author,year,title,jtitle,vol,issue,pages",
+"author,year,title,producer,dateviewed,url",
+"author,year,title,confname,editor,confdate,conflocation,pages"];
+function referenceThis(num) {
+    checkAuthors(author);
+    checkEditor(editor);
+    checkPages(pages);
+    checkVol(vol);
+    checkIssue(issue);
+    x = templates[num];
+    carr = arr[num].split(',');
+    for (i=0; i < carr.length; i++) {
+        x = x.replace("%s",document.getElementById(carr[i]).value);
+    }
+    x = x.replace(/,(\s,)+/g,',');
+    ref.innerHTML = x;
+}
+function displayStuff(num) {
+  x = document.getElementsByTagName('div');
+  for (i=0; i < x.length-1; i++) {
+    x[i].style.display = "none";
+  }
+  x = arr[num].split(',');
+  for (i=0; i < x.length; i++) {
+    document.getElementById("div_"+x[i]).style.display = "block";
+  }
+}
+
+function checkPages(o) {
+    x = o.value;
+    if (x == "") return;
+    if (x.toLowerCase().indexOf("p.") < 0) {
+        if (x.indexOf("-") > 0 || x.indexOf(",") > 0) {
+            x = "pp. " + x;
+        }
+        else {
+            x = "p. " + x;
+        }
+   }
+   o.value = x;
+}
+
+function checkAuthors(o) {
+    x = o.value;
+    if (x == "") return;
+    if (x.charAt(x.length-1) != ".") {
+		x = x.replace(/,?\s&\s/g,',');
+		x = x.replace(/,?\sand\s/gi,',');
+		x = x.replace(/,(\s)*$/g,'');
+        x = trim(x).split(',');
+        for (i=0; i < x.length; i++) {
+            x[i] = trim(x[i]).split(' ');
+            for (n=0; n < x[i].length-1; n++) {
+                if (x[i][n].charAt(x[i][n].length-1) != ".") {
+                    x[i][n] = x[i][n].substring(0,1) + '.';
+                }
+            }
+            x[i] = x[i].pop() + ', ' + x[i].join(' ');
+        }
+        y = x.pop();
+        if (x.length > 0) {
+          x = x.join(', ') + ' & ' + y;
+        }
+        else {
+          x = y;
+        }
+    }
+    o.value = x;
+}
+
+function checkVol(o) {
+    x = o.value;
+    if (x == "") return;
+    if (x.toLowerCase().indexOf('vol') < 0) {
+        x = "vol. " + x;
+    }
+    o.value = x;
+}
+
+function checkIssue(o) {
+    x = o.value;
+    if (x == "") return;
+    if (x.toLowerCase().indexOf('no') < 0) {
+        x = "no. " + x;
+    }
+    o.value = x;
+}
+
+function checkEditor(o) {
+    x = o.value;
+    if (x == "") return;
+    if (x.toLowerCase().indexOf('ed.') != 0) {
+        x = "ed. " + x;
+    }
+    o.value = x;
+}
+
+function trim(s) {
+    return s.replace(/^\s+|\s+$/g, '');
+} 
+
+function checkKey(o,e,f) {
+  if (e.keyCode == 13) {
+    f(o);
+  }
+}
+
+</script>
+</head>
+<body>
+<h2>use this to reference stuff</h2>
+<div id="div_author"><label>Author(s):</label> <input type="text" id="author" onKeyDown="checkKey(this,event,checkAuthors)"></div>
+<div id="div_year"><label>Year:</label> <input type="text" id="year"></div>
+<div id="div_title"><label>Title:</label> <input type="text" id="title"></div>
+<div id="div_publisher"><label>Publisher:</label> <input type="text" id="publisher"></div>
+<div id="div_edition"><label>Edition:</label> <input type="text" id="edition"></div>
+<div id="div_jtitle"><label>Journal Title:</label> <input type="text" id="jtitle"></div>
+<div id="div_producer"><label>Producer:</label> <input type="text" id="producer"></div>
+<div id="div_dateviewed"><label>Date viewed:</label> <input type="text" id="dateviewed"></div>
+<div id="div_url"><label>URL:</label> <input type="text" id="url"></div>
+<div id="div_confname"><label>Conference Name:</label> <input type="text" id="confname"></div>
+<div id="div_editor"><label>Editor:</label> <input type="text" id="editor" onKeyDown="checkEditor(this)"></div>
+<div id="div_vol"><label>Volume no.:</label> <input type="text" id="vol" onKeyDown="checkKey(this,event,checkVol)"></div>
+<div id="div_issue"><label>Issue no.:</label> <input type="text" id="issue" onKeyDown="checkKey(this,event,checkIssue)"></div>
+<div id="div_confdate"><label>Conference Date:</label> <input type="text" id="confdate"></div>
+<div id="div_publicationlocation"><label>Publication Location:</label> <input type="text" id="publicationlocation"></div>
+<div id="div_conflocation"><label>Conference Location:</label> <input type="text" id="conflocation"></div>
+<div id="div_pages"><label>Page(s) used:</label> <input type="text" id="pages" onKeyDown="checkKey(this,event,checkPages)"></div>
+<br><br>
+<select id="reftype" onChange="displayStuff(this.selectedIndex)">
+<option>Book</option>
+<option>Journal article</option>
+<option>Web page</option>
+<option>Conference paper</option>
+</select>
+<button onClick="referenceThis(reftype.selectedIndex)">Reference This</button>
+<br><br>
+<div id="ref"></div>
+<a href="index.html">Back to links</a>
+<script>
+displayStuff(reftype.selectedIndex);
+</script>
+</html>
+
+

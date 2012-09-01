@@ -1,9 +1,99 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
-<head>
-<title>Hello</title>
-</head>
-<body>
-<p>Hello</p>
-</body>
+	<head>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0" />
+		<title>Links</title>
+		<style type="text/css">
+			body { font-family:sans-serif; margin:0px }
+			header { 
+				color: white;
+				background: #336699;
+				background: -moz-linear-gradient(top, #3399cc, #336699);
+				background: -webkit-gradient(linear, center top, center bottom, from(#3399cc), to(#336699)); 
+				clear:both;
+			}
+			header h2 { 
+				height:2em; 
+				line-height:2em;
+				padding-left: 1%;
+				margin:0px;
+			}
+			#nav { display:none }
+			article { width:100% }
+			article p { float:left;
+				background: #fafafa;
+				background: -moz-linear-gradient(top, #fafafa, #dddddd);
+				background: -webkit-gradient(linear, center top, center bottom, from(#fafafa), to(#dddddd)); 
+				border:thin solid gray;
+				padding: 1%;
+				margin: 0.5%;
+				border-radius:10px; -webkit-border-radius:10px; -moz-border-radius:10px; 
+				height:100%;
+			}
+			article p a.heading {
+				display:block; text-align:center; padding:1%; border-bottom:thin solid gray; margin-bottom:2%;
+			}
+			/* Desktop, tablet in landscape */
+			@media screen and (min-width: 801px) {
+				article div { height:160px } 
+				article p { width:20% }
+			}
+			/* Smartphone in landscape, tablet in portrait, 
+			  and half-screen desktop browsers */
+			@media screen and (min-width:321px) and (max-width:800px) {
+				article div { height:160px }
+				article p { width:47%; } 
+			}
+			/* Smartphone in portrait */
+			@media screen and (max-width:320px) {
+				article p { width:96%; margin:0; padding:2%; 
+				border-radius:0px; -moz-border-radius:0px; -webkit-border-radius:0px }
+			}
+		</style>
+	</head>
+	<body>
+		<header id="nav">
+			<nav>
+				<div>
+					<a href="#new">New stuff</a>
+					<a href="#kindanew">Kinda new stuff</a>
+					<a href="#old">Old stuff</a>
+				</div>
+			</nav>
+		</header>
+		<section id="content">
+		<article id="new">
+			<header>
+				<h2>New stuff</h2>
+			</header>
+			<div>
+				<p><a class="heading" href="utils/render.html">Render template</a>Transforms raw tab-delimited data using a template. </p>
+				<p><a class="heading" href="utils/compile.html">Pseudo-compiler</a>Configurable regex-based lexer.</p>
+				<p><a class="heading" href="utils/templateeditor.html">Template-based text editor</a>Edit text using templates.</p>
+			</div>
+		</article>
+		<article id="kindanew">
+			<header>
+				<h2>Kinda new stuff</h2>
+			</header>
+			<div>
+				<p><a class="heading" href="utils/maths.html">Equation Editor</a>An extension to the HTML editor that allows you to edit equations. Some of these should be copy-pastable into Word and other tools.</p>
+				<p><a class="heading" href="utils/regexp.html">Regular expressions</a>A tool for testing out regular expressions online. Also allows you to apply a series of reg-exp replaces for more complex transformations.</p>
+				<p><a class="heading" href="utils/doco.html">Browser-based HTML editor</a>Combines a WYSIWYG editor with a source code editor in the browser. For the most part you can copy/paste into Word and other tools.</p>
+			</div>
+		</article>
+		<article id="old">
+			<header>
+				<h2>Old stuff</h2>
+			</header>
+			<div>
+				<p><a class="heading" href="utils/referencing.html">Referencing</a>UTS Bell Referencing Scheme Helper</p>
+				<p><a class="heading" href="utils/stylemarker.html">Style marker!</a>Marks Java code based on code factoring (the less repeated code, the higher marks)</p>
+				<p><a class="heading" href="utils/tetris.html">First person tetris</a>First person tetris.</p>
+				<p><a class="heading" href="utils/chess2p.html">Chess (alpha)</a>To play this you need: a 'modern' web browser such as <a href="http://www.getfirefox.net/">Firefox</a> or <a href="http://www.google.com/chrome">Chrome</a>, and a Unicode font such as Arial Unicode MS</p>
+				<p><a class="heading" href="chess1p.html" onClick="document.getElementById('desc').innerHTML='Just kidding.';return false">Chess (1p)</a><span id="desc">With AI. Really.</span></p>
+			</div>
+		</article>
+		</section>
+	</body>
 </html>

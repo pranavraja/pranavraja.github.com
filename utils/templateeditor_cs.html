@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<style type="text/css">
+			.template-link { visibility:hidden; display:block  }
+			.template-text { display:block }
+			#editor-container { display:block }
+		</style>
+	</head>
+	<body>
+
+		<h1>Template-based editor</h1>
+		<textarea id="editor-container" rows="10" cols="100"></textarea>
+
+		<h2>Templates</h2>
+		<button id="add-new-template">Add</button>
+		<div id="templates-container">
+			<div class="template">
+				<a class="template-link">test</a>
+				<input type="text" class="template-bind" value="p" />
+				<textarea class="template-text" rows="5" cols="100" title="property">public string {sel} { get; set; }</textarea>
+			</div>
+			<div class="template">
+				<a class="template-link">test</a>
+				<input type="text" class="template-bind" value="c" />
+				<textarea class="template-text" rows="5" cols="100" title="property">public class {sel} { 
+	{cursor} 
+}</textarea>
+			</div>
+		</div>
+		<script src="http://code.jquery.com/jquery.min.js"></script>
+		<script src="template.js"></script>
+	</body>
+</html> 

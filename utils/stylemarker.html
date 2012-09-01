@@ -1,0 +1,124 @@
+<html>
+    <head>
+        <style type="text/css">
+            table { border-collapse: collapse }
+            table th { background-color:#DDDDDD }
+            table td, table th { border:1px solid #999999 }
+            span.repeated { color:#0000CC }
+        </style>
+        <script>
+        String.prototype.trim = function() { return this.replace(/^\s+|\s+$/g, ''); };
+
+            function evaluateCode(val) {
+                results.innerHTML = "";
+                var repeatedcode = [];
+                var x = val.split("\n");
+                for (var i = 0; i < x.length; i++) {
+                    if (x[i].match(/\S/) == null) continue;
+		            if (x[i].match(/^package /g) != null) continue;
+                    if (ignoreimports.checked && x[i].match(/^import /g) != null) {
+                        continue;
+                    }
+                    var y = x[i].split(/[^\w\d\.\"\\\s]+/);
+//                    alert(y); return;
+                    for (var n = 0; n < y.length - 1; n++) {
+                        c = y[n].trim();
+                        if (c == '"') continue;
+                        if ((c.indexOf(".") == -1) && (c.indexOf("\"") == -1)) continue;
+                        if (val.indexOf(c) != val.lastIndexOf(c)) {
+                            if (repeatedcode.indexOf(c) == -1) {
+                                repeatedcode.push(c);
+                            }
+                        }
+                    }
+                }
+                doRepeatedCode(val, repeatedcode);
+            }
+
+            function doRepeatedCode(val, repeatedcode) {
+                actualrepeatedcode = [];
+                var x = val.split("\n");
+                for (var i = 0; i < repeatedcode.length; i++) {
+                    if (repeatedcode[i].charAt(0) == '.') continue;
+                    var re = new RegExp(repeatedcode[i].replace(/\\/g,"\\\\").replace(/\./g,"\\.").replace(/\"/g,"\\\"") + "[^\\w\\d\\.]");
+                    var currentactualrepeatedcode = [];
+                    for (var n=0; n < x.length; n++) {    
+                        idx = x[n].search(re);
+                        if (idx != -1) {
+                            currentactualrepeatedcode.push("Line " + n + ": " + x[n].substring(0, idx) + "<span class=\"repeated\">" + repeatedcode[i] + "</span>" + x[n].substring(idx+repeatedcode[i].length) + "<br>");
+                        }
+                    }
+                    if (currentactualrepeatedcode.length > 1) {
+                        actualrepeatedcode.push(currentactualrepeatedcode);
+                    }
+                }
+                results.innerHTML = '<p><table cellpadding="3"><tr><th>Score</th><td>' + Math.round(100*(1 - actualrepeatedcode.length/x.length)) + '%</td></tr></table></p>';
+                if (actualrepeatedcode.length == 0) {
+                    return;
+                }
+                var a = "<p><table><tr><th>Repeated code</th></tr>";
+                for (var i=0; i < actualrepeatedcode.length; i++) {
+                    a += "<tr><td>";
+                            for (var n=0; n < actualrepeatedcode[i].length; n++) {
+                                a += actualrepeatedcode[i][n];
+                            }
+                            a += "</td></tr>";
+                }
+                a += "</table></p>";
+            results.innerHTML += a;
+        }
+    </script>
+</head>
+<body>
+    <h2>Style marker</h2>
+    <p>Paste your Java code in the text field below, and click "Score".</p>
+<p>Tips: In most cases, repeated code can be eliminated by creating a 'wrapper' method that factors out the repetition. <a id="morelnk" href="javascript:void(0)" onClick="moreinfo.style.display='block'; this.style.display='none'">More...</a></p>
+    <div id="moreinfo" style="display:none">
+    <p>For example, the following is a common theme: <br>
+    <table style="border-collapse: collapse; background-color: rgb(238, 238, 238); margin-left: 0.2em; padding: 1em; font-family: monospace;" border="1" bordercolor="#999999">
+        <tbody>
+            <tr>
+                <td>try {<br>...<br>}
+                    catch (Exception ex) {
+                    <br>&nbsp;&nbsp;&nbsp; Logger.getLogger(XMLUtils.class.getName()).log(Level.SEVERE, null, ex);<br>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </p>
+    <p>
+    In this case, the code inside the <tt>catch</tt> block could be placed inside another method and called when needed, eliminating the repetition:</p>
+    <p><table style="border-collapse: collapse; background-color: rgb(238, 238, 238); margin-left: 0.2em; padding: 1em; font-family: monospace;" border="1" bordercolor="#999999">
+        <tbody>
+            <tr>
+                <td>private static void log (Exception ex) {
+                    <br>&nbsp;&nbsp;&nbsp; Logger.getLogger(XMLUtils.class.getName()).log(Level.SEVERE, null, ex);<br>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table></p>
+    <p>
+        <table style="border-collapse: collapse; background-color: rgb(238, 238, 238); margin-left: 0.2em; padding: 1em; font-family: monospace;" border="1" bordercolor="#999999">
+        <tbody>
+            <tr>
+                <td>try {<br>...<br>}
+                    catch (Exception ex) {<br>
+                    &nbsp;&nbsp;&nbsp; log(ex);<br>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </p>
+    <p><a href="javascript:void(0)" onClick="morelnk.style.display='inline'; moreinfo.style.display='none'">Less</a></p>
+</div>
+    <textarea rows="20" cols="100" id="codetxt"></textarea><br>
+    <input type="checkbox" id="ignoreimports" checked="checked" /><label for="ignoreimports">Ignore <tt>import</tt> statements</label><br><br>
+    <button onClick="evaluateCode(codetxt.value)">Score</button>
+
+    <div id="results">
+    </div>
+</body>
+</html>

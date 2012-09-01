@@ -1,0 +1,272 @@
+<html>
+<head>
+<style type="text/css">
+div { cursor:pointer; width:1em; height:1em; }
+#rtbl { font-family: Arial Unicode MS; font-size:500%; text-align:center; 
+ border-collapse:collapse; empty-cells:show }
+#rtbl td { border:2px solid #000000 }
+td.white { background-color:#F9F9F9 }
+td.grey { background-color:#AAAAAA }
+div.selected { background-color:#99CCFF; }
+</style>
+<script>
+r = '&#9820;';
+n = '&#9822;';
+b = '&#9821;';
+q = '&#9819;';
+k = '&#9818;';
+p = '&#9823;';
+
+R = '&#9814;';
+N = '&#9816;';
+B = '&#9815;';
+Q = '&#9813;';
+K = '&#9812;';
+P = '&#9817;';
+
+gameArray = [
+[R,N,B,Q,K,B,N,R],
+[P,P,P,P,P,P,P,P],
+new Array(8),
+new Array(8),
+new Array(8),
+new Array(8),
+[p,p,p,p,p,p,p,p],
+[r,n,b,q,k,b,n,r]];
+
+sq = ['a','b','c','d','e','f','g','h'];
+piecesArray = [r,n,b,q,k,p,R,N,B,Q,K,P];
+funs = [checkRookMove,checkKnightMove,checkBishopMove,checkQueenMove,checkKingMove,checkPawnMove];
+
+if(!Array.indexOf){
+	Array.prototype.indexOf = function(obj){
+		for(var i=0; i<this.length; i++){
+			if(this[i]==obj){
+				return i;
+			}
+		}
+		return -1;
+	}
+}
+
+function moveP(m) {
+  m1 = m.split('');
+  y = parseInt(m1[1])-1;
+  x = sq.indexOf(m1[0]);
+  j = rtbl.rows[7-y].cells[x];
+  piece = gameArray[y][x];
+  j.innerHTML = '&nbsp;';
+  delete gameArray[y][x];
+  y = parseInt(m1[3])-1;
+  x = sq.indexOf(m1[2])
+  rtbl.rows[7-y].cells[x].innerHTML = piece;
+  gameArray[y][x] = piece;
+}
+
+startpos = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+moves = [];
+
+function wFen() {
+  f1 = startpos.split('/');
+  for (i=0; i < 8; i++) {
+    f2 = f1[i].split('');
+    j1 = 0;
+    for (j=0; j < f2.length; j++) {
+      f3 = parseInt(f2[j]);
+      if (isNaN(f3)) {
+        with (rtbl.rows[i].cells[j1]) {
+            replaceChild(defNode.cloneNode(false),childNodes[0]);
+            childNodes[0].innerHTML = eval(f2[j]);
+        }
+        j1++;
+      }
+      else {
+        j1 += f3;
+      }
+    }
+  }
+  for (i=0; i < moves.length; i++) {
+    moveP(moves[i]); 
+  }
+}
+
+function movePiece(p1,p2) {
+    if (!checkMove(p1,p2)) return false;
+    gameArray[p2[1]][p2[0]] = gameArray[p1[1]][p1[0]];
+    delete gameArray[p1[1]][p1[0]];
+    moves.push(""+sq[p1[0]]+(8-p1[1])+sq[p2[0]]+(8-p2[1]));
+    displayMove();
+    return true;
+}
+
+function checkMove(p1,p2) {
+    o = piecesArray.indexOf(gameArray[p1[1]][p1[0]]);
+    d = piecesArray.indexOf(gameArray[p2[1]][p2[0]]);
+    if (d != -1) {
+        if ((o < 6 && d < 6) || (o >= 6 && d >= 6)) return false;
+    }
+    if (o < 6) {
+        return funs[o](p1,p2);
+    }
+    else {
+        return funs[o-6](p1,p2);
+    }
+}
+
+function isEmpty(p) {
+    return (gameArray[p[1]][p[0]] == undefined);
+}
+
+function checkKnightMove(p1,p2) {
+    return Math.abs((p2[0]-p1[0])*(p2[1]-p1[1])) == 2;
+}
+function checkBishopMove(p1,p2,s,dst) {
+    if (p1 == p2)
+        return false;
+    if (Math.abs(p2[0]-p1[0]) != Math.abs(p2[1]-p1[1]))
+         return false;
+    xdelta = (p2[0] > p1[0]) - (p2[0] < p1[0]);
+    ydelta = (p2[1] > p1[1]) - (p2[1] < p1[1]);
+    for (i=1; i < Math.abs(p2[0]-p1[0]); i++) {
+        if (!isEmpty([p1[0]+i*xdelta,p1[1]+i*ydelta]))
+            return false;
+    } 
+    return true;
+}
+function checkRookMove(p1,p2) {
+    if (p1 == p2)
+        return false;
+    if ((p2[0] - p1[0])*(p2[1]-p1[1]) != 0)
+        return false;
+    if (p1[0] == p2[0]) {
+        delta = (p2[1] > p1[1]) - (p2[1] < p1[1]);
+        for (i=1; i < Math.abs(p2[1]-p1[1]); i++) {
+            if (!isEmpty([p1[0],p1[1]+i*delta]))
+                return false;
+        }
+    }
+    else if (p1[1] == p2[1]) {
+        delta = (p2[0] > p1[0]) - (p2[0] < p1[0]);
+        for (i=1; i < Math.abs(p2[0]-p1[0]); i++) {
+            if (!isEmpty([p1[0]+i*delta,p1[1]]))
+                return false;
+        }
+    }
+    else {
+        return false;
+    }
+    return true;
+}
+function checkPawnMove(p1,p2) {
+    if (p1 == p2) 
+        return false;
+    gameArray[p1[1]][p1[0]] == p ? delta = -1 : delta = 1;
+    if (p2[0] == p1[0]) {
+        if (!isEmpty(p2))
+            return false;
+        if ((p2[1] - p1[1] == 2*delta) && ((p1[1]-1)*(p1[1]-6) == 0) && (isEmpty([p1[0],p1[1]+delta]))) {
+            return true;
+        }
+        else if (p2[1]-p1[1] == delta)
+            return true;
+    }
+    else {
+        if (isEmpty(p2)) {
+            return false;
+        }
+        else if ((p2[1]-p1[1] == delta) && (Math.abs(p2[0]-p1[0])==1))
+            return true;
+    }
+    return false;
+}
+function checkKingMove(p1,p2) {
+    if (p1 == p2) 
+        return false;
+    if (Math.abs((p2[1]-p1[1])*(p2[0]-p1[0])) == 1)
+        return true;
+    if ((Math.abs((p2[1]-p1[1])+(p2[0]-p1[0])) == 1) && (Math.abs((p2[1]-p1[1])*(p2[0]-p1[0])) == 0))
+        return true;
+    return false;
+}
+function checkQueenMove(p1,p2) {
+    return (checkRookMove(p1,p2) || checkBishopMove(p1,p2));
+}
+
+src = null;
+dest = null;
+defNode = document.createElement('div');
+defNode.setAttribute('onClick','clickSquare(this.parentNode)');
+defNode.innerHTML = "&nbsp;";
+function displayMove() {
+    src.childNodes[0].className='';
+    dest.replaceChild(src.childNodes[0],dest.childNodes[0]);
+    src.appendChild(defNode.cloneNode(true));
+}
+
+function clickSquare(cellClicked) {
+    if (src != null) {
+        dest = cellClicked;
+        if (!movePiece([src.cellIndex,src.parentNode.rowIndex],[dest.cellIndex,dest.parentNode.rowIndex]))
+             src.childNodes[0].className='';
+        src = null;
+        dest = null;
+    }
+    else {
+        if (cellClicked.childNodes[0].innerHTML != "") {
+          src = cellClicked;
+          src.childNodes[0].className="selected";
+        }
+    }
+}
+
+function populatePosFromQuery() {
+	if (location.search) {
+		var x = location.search.substring(location.search.indexOf('pos=')+4);
+		moves = x.split(',');
+	}
+}
+
+function attachClick(el) {
+	if (el.attachEvent) {
+		el.attachEvent("click",function () {
+			clickSquare(this.parentNode);
+		});
+	}
+}
+
+populatePosFromQuery();
+
+</script>
+</head>
+<body>
+<table id="rtbl"><tbody></tbody></table>
+
+<script>
+for (i=0; i < 8; i++) {
+  cr = document.createElement('tr');
+  for (j=0; j<8; j++) {
+    if ((i+j)%2) {
+      cc = document.createElement('td');
+      cc.setAttribute('class','grey');
+      cc.appendChild(defNode.cloneNode(false));
+      cr.appendChild(cc);      
+	  attachClick(cr.lastChild.lastChild);
+    }
+    else {
+      cc = document.createElement('td');
+      cc.setAttribute('class','white');
+      cc.appendChild(defNode.cloneNode(false));
+      cr.appendChild(cc);   
+	  attachClick(cr.lastChild.lastChild);
+    }
+  }
+  rtbl.firstChild.appendChild(cr);
+}
+</script>
+<br>
+<a href="index.html">Back to links</a>
+<script>
+wFen();
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<style type="text/css">
+			textarea {width:100% }
+		</style>
+		<script src="repl.js"></script>
+	</head>
+	<body>
+		<h2>Pseudo compiler</h2>
+		<p>Performs pseudo-compilation of high level syntax, based on regular expressions. Set up your syntax rules below using the form <tt>[regex];;[replace]</tt>, and as you type in the <i>Source</i> field the rules will be applied when you press enter.</p>
+		<textarea width="100%" rows="10" cols="100" onBlur="getActions(this.value)" id="rules"></textarea><br />
+		<a href="javascript:permalink(document.getElementById('rules').value)">Permalink</a>
+		<br clear="both" />
+		<br/>
+		<div style="float:left; width:50%">
+			Source:<br />
+			<textarea id="editorFrom" rows="15" cols="80"></textarea>
+		</div>
+		<div style="float:left; width:50%">
+			Compiled: <br />
+			<textarea id="editorTo" rows="15" cols="80"></textarea>
+		</div>
+		<script>
+			var ACTIONS;
+			var getActions = function (val) {
+				ACTIONS = val.split('\n').map(function (v) {
+					var a = v.split(';;');
+					a[0] = new RegExp(a[0]);
+					a[1] = eval('"' + a[1] + '"');
+					return a;
+				});
+			};
+
+			document.getElementById('editorFrom').onkeypress = function (event) {
+				if (event.keyCode == 13) {
+					repl.compile(ACTIONS, document.getElementById('editorFrom'), document.getElementById('editorTo'));
+				}
+			};
+
+			function permalink(val) {
+				location = "http://" + location.host + location.pathname + "?rules=" + encodeURIComponent(val);
+				return false;
+			}
+
+			if (location.search) {
+				document.getElementById('rules').value = decodeURIComponent(location.search.split('=')[1]);
+			};
+			getActions(document.getElementById('rules').value);
+		</script>
+	</body>
+</html>

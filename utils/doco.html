@@ -1,0 +1,106 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style type="text/css">
+body { font-family:Lucida Sans,sans-serif }
+</style>
+<title>Text Editor - Documentation</title>
+<script>
+templates = [
+  '<h1>{0}</h1> ',
+  '<h2>{0}</h2> ',
+  '<h3>{0}</h3> ',
+  '<table style="border-collapse:collapse; background-color:#EEEEEE; margin-left:0.2em; padding:1em; font-family:monospace" border="1" bordercolor="#999999"><tr><td>{0}</td></tr></table>',
+  '<b>{0}</b>','<i>{0}</i>',
+  '<ul><li>1</li><li>2</li><li>3</li></ul> ',
+  '<table style="border-collapse:collapse; empty-cells:show" border="1"><tr><td> </td><th>1</th><th>2</th></tr><tr><td>a</td><td>2</td><td>4</td></tr><tr><td>b</td><td>3</td><td>3</td></tr></table> '
+];
+
+templates_2 = [
+  '<span style="color:#000099">{0}</span>',
+  '<span style="color:#CC0000">{0}</span>',
+  '<span style="color:#009900">{0}</span>',
+  '<span style="color:#0000FF">{0}</span>',
+  '<span style="color:#00CC00">{0}</span>',
+  '<span style="background-color:#EEEEEE">{0}</span>',
+  '<span style="background-color:#FFDDDD">{0}</span>',
+  '<span style="background-color:#FFFFAA">{0}</span>',
+  '<table style="border-collapse:collapse; background-color:#EEEEEE; margin-left:0.2em; padding:0.2em" border="1" bordercolor="#999999"><tr><td>{0}</td></tr></table>',
+  '<table style="border-collapse:collapse; background-color:#FFDDDD; margin-left:0.2em; padding:0.2em" border="1" bordercolor="#999999"><tr><td>{0}</td></tr></table>',
+  '<table style="border-collapse:collapse; background-color:#FFFFAA; margin-left:0.2em; padding:0.2em" border="1" bordercolor="#999999"><tr><td>{0}</td></tr></table>',
+];
+
+
+displays = [
+  'Heading 1 ', 'Heading 2 ', 'Heading 3 ', '<tt>code</tt>',
+  '<b>b</b>','<i>i</i>',
+  'list',
+  'table'
+];
+
+displays_2 = [
+  '<span style="color:#000099"><b>A</b></span>',
+  '<span style="color:#CC0000"><b>A</b></span>',
+  '<span style="color:#009900"><b>A</b></span>',
+  '<span style="color:#0000FF"><b>A</b></span>',
+  '<span style="color:#00CC00"><b>A</b></span>',
+  '<span style="background-color:#EEEEEE; padding-left:1em">&nbsp;</span>',
+  '<span style="background-color:#FFDDDD; padding-left:1em">&nbsp;</span>',
+  '<span style="background-color:#FFFFAA; padding-left:1em">&nbsp;</span>',
+  '<span style="background-color:#EEEEEE; border:1px solid #000000; padding-left:1em">&nbsp;</span>',
+  '<span style="background-color:#FFDDDD; border:1px solid #000000; padding-left:1em">&nbsp;</span>',
+  '<span style="background-color:#FFFFAA; border:1px solid #000000; padding-left:1em">&nbsp;</span>',
+  
+];
+
+function replaceselection(html) {
+  contentdiv.focus();
+  if (document.selection) {
+    sel = document.selection.createRange();
+    sel.pasteHTML(render(html,sel.htmlText));
+    return;
+  }
+  else if (getSelection()) {
+    sel = getSelection().getRangeAt(0);
+    innerhtml = new XMLSerializer().serializeToString(sel.cloneContents());
+    sel.deleteContents();
+    sel.insertNode(sel.createContextualFragment(render(html,innerhtml)));
+    return;
+  }
+  contentdiv.innerHTML += html;
+}
+function render(html,innerhtml) {
+  if (innerhtml == "") return html.replace(/\{0\}/g,'&lt;content&gt;');
+  return html.replace(/\{0\}/g,innerhtml);
+}
+function addtemplate(a) {
+  replaceselection(templates[a]);
+}
+function addtemplate_2(a) {
+  replaceselection(templates_2[a]);
+}
+</script>
+<style type="text/css">
+body { font-family:Arial Unicode MS,sans-serif; margin:1px }
+button { vertical-align:middle }
+</style>
+</head>
+<body>
+<h2>Yay, a HTML editor!</h2>
+<p>The grey box below the buttons is editable. <br>
+The buttons apply a style to the current selection.</p>
+<script>
+for (i=0; i < templates.length; i++) {
+  document.write('<button onClick="addtemplate(\'' + i + '\')">' + displays[i] + '</button>');
+}
+document.write('<br>');
+for (i=0; i < templates_2.length; i++) {
+  document.write('<button onClick="addtemplate_2(\'' + i + '\')">' + displays_2[i] + '</button>');
+}
+</script><br><br>
+<div id="contentdiv" style="border:1px solid #CCCCCC" contenteditable="true">&nbsp;</div>
+<button onClick="txt.value=contentdiv.innerHTML; txt.style.display=''" accesskey="s">&darr;</button>
+<button onClick="txt.style.display == '' ? contentdiv.innerHTML=txt.value : txt.style.display = ''" accesskey="w">&uarr;</button><br>
+<textarea id="txt" rows="20" cols="100" style="display:none"></textarea>
+</body>
+</html>

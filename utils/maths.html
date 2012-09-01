@@ -1,0 +1,71 @@
+<html>
+<head>
+<title>Text Editor - Maths</title>
+<script>
+templates = {
+    'x/y':'<table style="display: inline-block; vertical-align: middle; text-align: center; margin-left: 2px; margin-right: 2px; padding: 0px;"><tr><td style="border-bottom: 1px solid rgb(0, 0, 0); padding-bottom: 2px;">x</td></tr><tr><td style="padding-top:0px">y</td></tr></table>&nbsp;',
+'lim':'<table style="display: inline-block; vertical-align: middle; text-align:center" cellpadding="0" cellspacing="0"><tbody><tr><td>lim</td><td rowspan="2" style="padding-bottom:5px">&nbsp;f(x)</td></tr><tr><td style="font-size: 80%; vertical-align: top;">x &rarr; &infin;</td></tr></tbody></table>&nbsp;',
+'indefintegral':'<span contenteditable="false" style="font-size:200%; vertical-align:middle; padding:0px">&int;</span>x&middot;dx ',
+'defintegral':'<table style="display: inline-block; vertical-align: middle; text-align:center" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-size: 70%;">b</td><td rowspan="3" style="padding-bottom:5px">x&middot;dx</td></tr><tr><td style="padding-top: 0px; font-size: 200%;">&int;</td></tr><tr><td style="font-size: 70%;">a</td></tr></tbody></table>&nbsp;',
+'sigma':'<table style="display: inline-block; vertical-align: middle; text-align:center" cellpadding="0" cellspacing="0"><tbody><tr><td style="font-size: 70%;">n</td><td rowspan="3" style="padding-bottom:5px">k</td></tr><tr><td style="padding-top: 0px; font-size: 200%;">&Sigma;</td></tr><tr><td style="font-size: 70%;">k=0</td></tr></tbody></table>&nbsp;',
+'nCk':'<sup style="vertical-align:0.35em">n</sup>C<sub>k</sub> ',
+'x^y':'x<sup style="vertical-align:0.35em">y</sup> ',
+'x_1':'x<sub>1</sub> ',
+'sqrt':'&radic;<span style="border-top:1px solid #000000">x</span> ',
+'matrix':'<table style="empty-cells: show; display:inline-block; vertical-align:middle"> <tbody><tr> <td style="border-color: black; border-style: solid none solid solid; border-width: thin; width: 2px;"></td> <td> <table> <tbody><tr> <td>1</td> <td>0</td> </tr> <tr> <td>0</td> <td>1</td> </tr> </tbody></table> </td> <td style="border-color: black; border-style: solid solid solid none; border-width: thin; width: 2px;"></td> </tr> </tbody></table>&nbsp;',
+'evalfunction':'<table style="empty-cells: show; display:inline-block; vertical-align:middle"> <tbody><tr> <td style="border-color: black; border-style: solid none solid solid; border-width: thin; width: 2px;"></td> <td>ln(x)</td> <td style="border-color: black; border-style: solid solid solid none; border-width: thin; width: 2px;"></td> </tr> </tbody></table><table style="display:inline-block; vertical-align:middle"><tr><td><sup style="vertical:align:0.35em">2</sup></td></tr><tr><td><sub>1</sub></td></tr></table>&nbsp;',
+'sci':'1&times;10<sup style="vertical-align: 0.35em;">3</sup>'
+};
+
+function replaceselection(html) {
+  contentdiv.focus();
+  if (document.selection) {
+    sel = document.selection.createRange();
+    sel.pasteHTML(html);
+    return;
+  }
+  else if (getSelection()) {
+    sel = getSelection().getRangeAt(0);
+    sel.deleteContents();
+    sel.insertNode(sel.createContextualFragment(html));
+    return;
+  }
+  contentdiv.innerHTML += html;
+}
+function addtemplate(a) {
+  replaceselection(templates[a]);
+}
+</script>
+<style type="text/css">
+body { font-family:Arial Unicode MS,sans-serif; margin:1px }
+button { vertical-align:middle }
+</style>
+</head>
+<body>
+    <h2>Maths Equation Editor</h2>
+    <p>This is an equation editor which is not as good as <a href="http://www.latex-project.org/" target="_blank">LaTeX</a> but generates HTML instead of images, which I think is way cooler.</p>
+    <p>Most of these equations have been designed to be copy-paste compatible with Word and Outlook (except the square root, i cbf to fix that... if you think you have some HTML that looks good cross-browser <i>and</i> in Word/Outlook, let me know).</p>
+    <p>I <i>think</i> this is cross-browser (you just need a Unicode font installed - Arial Unicode MS is preferred because integral signs look so much more awesome).</p>
+<script>
+chars = new Array('infin','frac12','sup1','sup2','sup3','sum','int','plusmn','times','divide','equiv','asymp',
+'middot','there4','#8757','ne','lt','gt','ge','le','isin','notin','#8450','#8477','#x21cc');
+for (i=0; i < chars.length; i++) {
+  document.write('<button onClick="replaceselection(\'&amp;' + chars[i] + ';\')" title="' + chars[i] + '">&' + chars[i] + ';</button>');
+}
+document.write('<br>');
+chars = new Array('pi');
+for (i=0; i < chars.length; i++) {
+  document.write('<button onClick="replaceselection(\'&amp;' + chars[i] + ';\')" title="' + chars[i] + '">&' + chars[i] + ';</button>');
+}
+document.write('<br>');
+for (i in templates) {
+  document.write('<button onClick="addtemplate(\'' + i + '\')" title="' + i + '">' + templates[i] + '</button>');
+}
+</script><br><br>
+<div id="contentdiv" style="height:40%" contenteditable="true">&nbsp;</div>
+<button onClick="txt.value=contentdiv.innerHTML; txt.style.display=''">&darr;</button>
+<button onClick="if (txt.value != '') contentdiv.innerHTML = txt.value; txt.style.display=''">&uarr;</button>
+<br>
+<textarea id="txt" rows="20" cols="100" style="display:none"></textarea>
+</body>
+</html>

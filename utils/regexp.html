@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <style type="text/css">
+            body { font-family:Lucida Sans,sans-serif }
+        </style>
+    </head>
+    <body>
+        <h2>Yay, regular expressions!</h2>
+        Input:<br>
+        <textarea id="inp" rows="15" cols="150"></textarea><br>
+        Test Replace <input type="text" id="findstr" /> with <input type="text" id="replacestr" /> 
+        <button id="replacebtn" accesskey="r">Replace</button><br><br>
+        Replace sequence (format: <i>exprtofind;;replacestr</i>, one replace instruction per line.<br /> Remember to escape special characters with a backslash.)<br>
+        <textarea id="template" rows="5" cols="150"></textarea><br>
+		<a href="javascript:permalink(template.value)">Permalink</a><br>
+        <button id="renderbtn" accesskey="a">Replace all</button><br>
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+        <script>
+			function permalink(val) {
+				location = "http://" + location.host + location.pathname + "?template=" + encodeURIComponent(val);
+				return false;
+			}
+
+			if (location.search) {
+				document.getElementById('template').value = decodeURIComponent(location.search.split('=')[1]);
+			}
+
+
+            function replaceinp(inputtxt, findexp, replaceexp) {
+                return inputtxt.replace(new RegExp(findexp,"g"),eval('"'+replaceexp+'"'));
+            }
+
+            function replaceAndRender() {
+                var inputtxt = $("#inp").val();
+                var toReplace = $("#template").val();
+                if (toReplace.indexOf('\r\n') != -1) {
+                    toReplace = toReplace.split('\r\n');
+                }
+                else {
+                    toReplace = toReplace.split('\n');
+                }
+                for (var i=0; i < toReplace.length; i++) {
+                    currToReplace = toReplace[i].split(';;');
+                    if (currToReplace.length < 2) continue;
+                    inputtxt = replaceinp(inputtxt, currToReplace[0], currToReplace[1]);
+                    $("#inp").val(inputtxt); // for debugging
+                }
+            }
+
+            $("#replacebtn").click(function () {
+                $("#inp").val(replaceinp($("#inp").val(), $("#findstr").val(), $("#replacestr").val()));
+            });
+
+            $("#renderbtn").click(replaceAndRender);
+
+            // Read a page's GET URL variables and return them as an associative array.
+            function getUrlVars()
+            {
+                var vars = [], hash;
+                var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                for(var i = 0; i < hashes.length; i++)
+                {
+                    hash = hashes[i].split('=');
+                    vars.push(hash[0]);
+                    vars[hash[0]] = hash[1];
+                }
+                return vars;
+            }
+            var x = getUrlVars();
+            if (x.regexp) {
+                template.value = decodeURIComponent(x.regexp);
+            }
+
+
+        </script>
+    </body>
+</html>

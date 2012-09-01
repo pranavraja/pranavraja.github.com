@@ -1,0 +1,302 @@
+<html>
+    <head>
+        <title>Tetris</title>
+		<script src="http://code.jquery.com/jquery.min.js"></script>
+        <script>
+            o = [[0,0],[0,1],[1,0],[1,1]];
+            j = [[0,0],[0,1],[1,1],[2,1]];
+            j1 = [[0,0],[1,0],[0,1],[0,2]];
+            j2 = [[0,0],[1,0],[2,0],[2,1]];
+            j3 = [[1,0],[1,1],[0,2],[1,2]];
+            l = [[2,0],[0,1],[1,1],[2,1]];
+            l1 = [[0,0],[0,1],[0,2],[1,2]];
+            l2 = [[0,0],[1,0],[2,0],[0,1]];
+            l3 = [[0,0],[1,0],[1,1],[1,2]];
+            i = [[0,1],[1,1],[2,1],[3,1]];
+            i1 = [[1,0],[1,1],[1,2],[1,3]];
+            s = [[1,0],[2,0],[0,1],[1,1]];
+            s1 = [[0,0],[0,1],[1,1],[1,2]];
+            t = [[1,0],[0,1],[1,1],[2,1]];
+            t1 = [[0,0],[0,1],[1,1],[0,2]];
+            t2 = [[0,0],[1,0],[2,0],[1,1]];
+            t3 = [[1,0],[0,1],[1,1],[1,2]];
+            z = [[0,0],[1,0],[1,1],[2,1]];
+            z1 = [[1,0],[0,1],[1,1],[0,2]];
+
+            pieces = [[o],[j,j1,j2,j3],[l,l1,l2,l3],[i,i1],[s,s1],[t,t1,t2,t3],[z,z1]];
+            mvdowntime = 200;
+            mvtime = 70;
+            cy = 0;
+            cx = 0;
+            currp = '';
+            currpts = 0;
+            currrot = 0;
+            nextp = '';
+            t = '';
+            m = '';
+            sc = new Array(28);
+            for (i=0; i < sc.length; i++) {
+                sc[i] = new Array(19);
+                sc[i][0] = 1;
+                for (n=1; n < sc[i].length-1; n++) {
+                    if (i < (sc.length-1)) {
+                        sc[i][n] = 0;
+                    }
+                    else {
+                        sc[i][n] = 1;
+                    }
+                }
+                sc[i][sc[i].length-1]= 1;
+            }
+            gameon = 0;
+
+            function checkK(e) {
+                a = e.keyCode;
+				if (gameon) {
+					// LEFT
+					if (a == leftKey()) {
+                        mva(currp[currrot],-1);
+                        clearInterval(m);
+                        m = setInterval('mva(currp[currrot],-1)',mvtime);
+					}
+                    else if (a == rightKey()) {
+                        mva(currp[currrot],1);
+                        clearInterval(m);
+                        m = setInterval('mva(currp[currrot],1)',mvtime);
+					}
+					// DOWN
+					else if (a == downKey()) {
+                        clearInterval(t);
+                        t = setInterval('mvdown(currp[currrot])',0);
+					}
+					else if (a == upKey()) {
+					}
+					// SPACE
+                    else if (a == spaceKey()) {
+						rotate();
+					}
+                }
+            }
+
+			UP_LEFT_DOWN_RIGHT = [38, 37, 40, 39];
+
+			function leftKey() {
+				var boardRotationIndex = Math.abs(currentRotation/90);
+				return UP_LEFT_DOWN_RIGHT[(boardRotationIndex+1)%4];
+			}
+			function rightKey() {
+				var boardRotationIndex = Math.abs(currentRotation/90);
+				return UP_LEFT_DOWN_RIGHT[(boardRotationIndex+3)%4];
+			}
+			function upKey() {
+				var boardRotationIndex = Math.abs(currentRotation/90);
+				return UP_LEFT_DOWN_RIGHT[(boardRotationIndex)%4];
+			}
+			function downKey() {
+				var boardRotationIndex = Math.abs(currentRotation/90);
+				return UP_LEFT_DOWN_RIGHT[(boardRotationIndex+2)%4];
+			}
+			function spaceKey() {
+				return 32;
+			}
+
+            function checkK2(e) {
+                a = e.keyCode;
+                if (gameon) {
+                    if ((a==leftKey())||(a==rightKey())) clearInterval(m);
+                    if ((a==spaceKey()) || (a == downKey())) { 
+                        clearInterval(t);
+                        t = setInterval('mvdown(currp[currrot])',mvdowntime);
+                    }
+                }
+            }
+
+            function mvdown() {
+                a = currp[currrot];
+                for (i=0; i < a.length; i++) {
+                    if (sc[a[i][1]+cy+1][a[i][0]+cx] == 1) {
+                        clearInterval(t);
+                        stopmv(a);
+                        return false;
+                    }
+                }
+                drawpos(a,'');
+                cy++;
+                drawpos(a,'1');
+                currpts++;
+                pts.innerHTML = currpts;
+            }
+
+            function mva(a,n) {
+                for (i=0; i < a.length; i++) {
+                    if (sc[a[i][1]+cy][a[i][0]+cx+n] == 1) {
+                        return false;
+                    }
+                }
+                drawpos(a,'');
+                cx += n;
+                drawpos(a,'1');
+            }
+
+			var currentRotation = 0;
+
+            function rotate() {
+				currentRotation -= 90;
+				$('body').css({"-moz-transform" : "rotate(" + currentRotation + "deg)", "-webkit-transform" : "rotate(" + currentRotation + "deg)"});
+                a = currp[(currrot+1)%currp.length];
+                for (i=0; i < a.length; i++) {
+                    if (sc[a[i][1]+cy][a[i][0]+cx] == 1) {
+                        return false;
+                    }
+                }
+                drawpos(currp[currrot],'');
+                currrot=(currrot+1)%currp.length;
+                drawpos(currp[currrot],'1');
+            }
+
+            function drawpos(a,j) {
+                for (i=0; i < a.length; i++) {
+                    if (j) {
+                        tbl.rows[a[i][1]+cy].cells[a[i][0]+cx].className = 'filled';
+                    }
+                    else {
+                        tbl.rows[a[i][1]+cy].cells[a[i][0]+cx].className = '';
+                    }
+                }
+            }
+
+            function drawnxtp(a,j) {
+                for (i=0; i < a.length; i++) {
+                    if (j) {
+                        nxtp.rows[a[i][1]].cells[a[i][0]].className = 'filled';
+                    }
+                    else {
+                        nxtp.rows[a[i][1]].cells[a[i][0]].className = '';
+                    }
+                }
+            }
+
+            function stopmv(a) {
+                for (i=0; i < a.length; i++) {  
+                    sc[a[i][1]+cy][a[i][0]+cx] = 1; 
+                } 
+                checkLines();
+                drop();
+            }
+            function checkLines() {
+                for (i=0; i < sc.length-1; i++) {
+                    if (sc[i].indexOf(0) == -1) {
+                        sc.splice(i,1);
+                        sc.splice(0,0,sc[0]);
+                        tbl.deleteRow(i);
+                        x= tbl.insertRow(2);
+                        x.innerHTML = tbl.rows[1].innerHTML;
+                    }
+                }
+            }
+            function drop() {
+                nextp ? currp = nextp : currp = pieces[Math.floor(Math.random()*pieces.length)];
+                nextp = pieces[Math.floor(Math.random()*pieces.length)];
+                drawnxtp(currp[0],'');
+                drawnxtp(nextp[0],'1');
+                cy = 0; cx = 8; currrot = 0;
+                a = currp[currrot];
+                for (i=0; i < a.length; i++) {
+                    if (sc[a[i][1]+cy][a[i][0]+cx] == 1) {
+                        alert('You lose. Refresh to play again.');
+                        gameon=0;
+                        return false;
+                    }
+                }
+                t = setInterval('mvdown()',mvdowntime);
+            }
+            function pausegame() {
+                if (gamerunning) {
+                    clearInterval(t);
+                    gamerunning = 0;
+                    pr.innerHTML = "Resume";
+                }
+                else {
+                    t = setInterval('mvdown()',mvdowntime);
+                    gamerunning = 1;
+                    pr.innerHTML = "Pause";
+                }
+            }
+            function cDiff() {
+                mvdowntime = parseInt(diff.value);
+                mvtime = Math.floor(Math.sqrt(mvdowntime))*5;
+            }
+            gameon = 0;
+            gamerunning = 1;
+        </script>
+        <style type="text/css">
+            body { font-family:Courier New,monospace }
+			body
+			{
+			overflow: hidden;
+			transition: transform 0.5s;
+			-moz-transition: -moz-transform 0.5s; /* Firefox 4 */
+			-webkit-transition: -webkit-transform 0.5s; /* Safari and Chrome */
+			} 
+            #tbl1 { empty-cells:show }
+            #tbl td,#nxtp td { width:15px; height:15px }
+            #tbl td.filled,#nxtp td.filled { background-color:#0000CC }
+            #tbl td.outside { background-color:#000000 }
+            tr.hide { display:none }
+        </style>
+    </head>
+    <body class="normal" onKeyDown="checkK(event)" onKeyUp="checkK2(event)">
+        <h3>First Person Tetris!</h3>
+		<p>Inspired by <a href="http://firstpersontetris.com">firstpersontetris.com</a>. Use &larr; and &rarr; to move pieces left and right, and the spacebar to rotate the game. There's also &darr; to speed the movement up, but I doubt you'll be needing that.</p>
+        <center>
+        <table><tr><td>
+            <table id="tbl">
+
+                <script>
+                    for (i=0; i < sc.length; i++) {
+                        i < 2 ? document.write('<tr class="hide">') : document.write('<tr>');
+                                for (n=0; n < sc[i].length; n++) {
+                                    if (sc[i][n]) {
+                                        document.write('<td class="outside"></td>');
+                                    }
+                                    else {
+                                        document.write('<td></td>');
+                                    }
+                                }
+                                document.write('</tr>');
+                        }
+                    </script>
+            </table></td>
+        <td>
+            <br><div>
+                <table id="nxtp">
+                    <script>
+                        for (i=0; i < 4; i++) {
+                            document.write('<tr>');
+                                for (n=0; n < 4; n++) {
+                                    document.write('<td></td>');
+                                }
+                                document.write('</tr>');
+                        }
+                    </script>
+                </table>
+            </div><br><br>
+            <button onClick="if (!gameon) { gameon=1; drop(); }">Start!</button> 
+            <button id="pr" onClick="pausegame()">Pause</button><br>
+            Points: <span id="pts"></span><br><br>
+            Difficulty: 
+            <select onChange="cDiff()" id="diff">
+
+                <option value="300">Easy</option>
+                <option value="200" selected>Medium</option>
+                <option value="80">Hard</option>
+                <option value="20">&int;e<sup>x<sup>2</sup></sup>&middot;dx</option>
+            </select>
+            <br>
+            <a href="index.html">Back to links</a>
+       </td></tr></table>
+       </center>   
+     </body>
+
+    </html>
+
