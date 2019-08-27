@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<head>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+<style type="text/css">
+    main {
+        width: 100%;
+        max-width: 40rem;
+        margin: 0 auto;
+    }
+    section {
+        padding: 1rem;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    #options li {
+        text-decoration: underline;
+        color: blue;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+</head>
+<body>
+    <main>
+        <h2>The Adventures of Dopey the Robot</h2>
+        <header>
+            <p id="header-text"></p>
+        </header>
+        <section>
+            <img id="pic">
+        </section>
+        <footer>
+            <p id="footer-text"></p>
+        </footer>
+        <aside>
+            <ul id="options">
+                <li></li>
+            </ul>
+        </aside>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js"></script>
+    <script>
+        const states = [
+            {
+                name: 'start',
+                desc: "You're just a poor robot trying to get by in the corporate world, but Steve from accounting is blocking you at every turn. Today he would like you to fill in form 32A again, to assist with escalation of form 58G. You've really had enough of Steve this time. What should you do?",
+                options: [
+                    { text: 'Fight Steve', transition: 'fight' },
+                    { text: 'Explain the situation', transition: 'explain' },
+                ],
+            },
+            {
+                name: 'explain',
+                desc: () => {
+                    const rand = Math.random();
+                    if (rand < 0.2) return "Come on, are you a robot that feels no pain, or a f**king coward? Let's try that again";
+                    if (rand < 0.4) return "Don't be so boring, let's man up and fight Steve";
+                    if (rand < 0.6) return "You explain your troubles to Steve... just kdding, you don't do that, because that would be a stupid waste of time.";
+                    if (rand < 0.8) return "That's a stupid choice. Pls choose the correct one. I didn't make this game to sit around watching you be diplomatic";
+                    if (rand < 1) return "This is a game, not real life. There's no need to be so boring.";
+                },
+                options: [
+                    { text: 'Fight Steve', transition: 'fight' },
+                    { text: 'Explain the situation', transition: 'explain' },
+                ],
+            },
+            {
+                name: 'fight',
+                desc: "BOOM! You knock Steve and his stupid greasy laptop to the floor. His can of soft drink spills everywhere and his fancy office chair goes spinning behind him.",
+                options: [
+                    { text: 'Gloat over your imminent victory', transition: 'gloat' },
+                ],
+            },
+            {
+                name: 'gloat',
+                desc: "GAME OVER! Congrats you have won the game",
+                options: [
+                    { text: 'Play again', transition: 'start' },
+                ],
+            }
+        ];
+
+        let img = d3.select('#pic');
+        let footer = d3.select('#footer-text');
+
+        function clickOption() {
+            transition(d3.select(this).data()[0].transition);
+        }
+
+        function transition(name) {
+            for (let i=0; i < states.length; i++) {
+                if (states[i].name == name) {
+                    const state = states[i];
+
+                    let options = d3.select('#options').selectAll('li').data(state.options);
+                    options.enter().append('li').merge(options).text(d => {
+                        if (typeof d.text == 'function') {
+                            return d.text();
+                        }
+                        return d.text;
+                    }).on('click', clickOption);
+                    options.exit().remove();
+                    img.attr('src', 'img/'+state.name+'.png');
+                    footer.text(() => {
+                        if (typeof state.desc == 'function') {
+                            return state.desc();
+                        }
+                        return state.desc;
+                    });
+                    return;
+                }
+            }
+        }
+        transition('start');
+    </script>
+</body>
+</html>
