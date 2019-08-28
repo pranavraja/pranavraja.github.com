@@ -45,6 +45,7 @@
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js"></script>
     <script>
+        const ANIMATION_FRAME = 3500;
         const states = [
             {
                 name: 'start',
@@ -60,7 +61,7 @@
                     const rand = Math.random();
                     if (rand < 0.2) return "Come on, are you a robot that feels no pain, or a f**king coward? Let's try that again";
                     if (rand < 0.4) return "Don't be so boring, let's man up and fight Steve";
-                    if (rand < 0.6) return "You explain your troubles to Steve... just kdding, you don't do that, because that would be a stupid waste of time.";
+                    if (rand < 0.6) return "You explain your troubles to Steve... just kidding, you don't do that, because that would be a stupid waste of time.";
                     if (rand < 0.8) return "That's a stupid choice. Pls choose the correct one. I didn't make this game to sit around watching you be diplomatic";
                     if (rand < 1) return "This is a game, not real life. There's no need to be so boring.";
                 },
@@ -73,7 +74,17 @@
                 name: 'fight',
                 desc: "BOOM! You knock Steve and his stupid greasy laptop to the floor. His can of soft drink spills everywhere and his fancy office chair goes spinning behind him.",
                 options: [
-                    { text: 'Gloat over your imminent victory', transition: 'gloat' },
+                    { text: "Gloat over your imminent victory", transition: 'gloat' },
+                    { text: "Kick Steve while he is down to teach him some respect", transition: 'kick' },
+                    { text: "Apologise to Steve, you didn't mean to hurt him", transition: 'apologise' },
+                ],
+            },
+            {
+                name: 'fight2',
+                desc: "Steve is still on the ground struggling",
+                options: [
+                    { text: "Gloat over your victory", transition: 'gloat' },
+                    { text: "Kick Steve while he is down to teach him some respect", transition: 'kick' }
                 ],
             },
             {
@@ -82,7 +93,52 @@
                 options: [
                     { text: 'Play again', transition: 'start' },
                 ],
-            }
+            },
+            {
+                name: 'apologise',
+                desc: "Why would you do that? Steve is a terrible person",
+                options: [
+                    { text: 'Go back', transition: 'fight2' },
+                ],
+            },
+            {
+                name: 'kick',
+                desc: () => {
+                    setTimeout(transition.bind(null, "kick2"), ANIMATION_FRAME);
+                    return "Alright, you're going for it. You take a few seconds to prepare the kick...";
+                },
+                options: [],
+            },
+            {
+                name: 'kick2',
+                desc: () => {
+                    setTimeout(transition.bind(null, "kick3"), ANIMATION_FRAME);
+                    return "You didn't spot that Steve was secretly holding a clipboard. He grabs the clipboard hard and SMASHES IT ACROSS YOUR BODY!";
+                },
+                options: [],
+            },
+            {
+                name: 'kick3',
+                desc: "You're on the floor now with a broken arm and some loose screws, and Steve's getting up and grabbing his laptop to finish the job",
+                options: [
+                    { text: 'RUN!', transition: 'run' },
+                ],
+            },
+            {
+                name: 'run',
+                desc: () => {
+                    setTimeout(transition.bind(null, "run2"), ANIMATION_FRAME);
+                    return "You get up and hobble away as fast as you can. Steve is in pursuit but you lose him quickly.";
+                },
+                options: [],
+            },
+            {
+                name: 'run2',
+                desc: "GAME OVER! You're finally out of range of Steve, but you've lost the game.",
+                options: [
+                    { text: 'Play again', transition: 'start' },
+                ],
+            },
         ];
 
         let img = d3.select('#pic');
