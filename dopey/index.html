@@ -89,9 +89,12 @@
             },
             {
                 name: 'gloat',
-                desc: "GAME OVER! Congrats you have won the game",
+                desc: () => {
+                    setTimeout(transition.bind(null, "credits"), ANIMATION_FRAME*2.5);
+                    return "GAME OVER! Congrats you have won the game";
+                },
                 options: [
-                    { text: 'Play again', transition: 'start' },
+                    { text: 'Play again', transition: 'start1' },
                 ],
             },
             {
@@ -136,7 +139,14 @@
                 name: 'run2',
                 desc: "GAME OVER! You're finally out of range of Steve, but you've lost the game.",
                 options: [
-                    { text: 'Play again', transition: 'start' },
+                    { text: 'Play again', transition: 'start1' },
+                ],
+            },
+            {
+                name: 'credits',
+                desc: "This game is a Rajacom original production. Thanks to the relevant certification authorities for allowing this game to be distributed globally in its original uncut form.",
+                options: [
+                    { text: 'Play again', transition: 'start1' },
                 ],
             },
         ];
@@ -172,7 +182,7 @@
                 }
             }
         }
-        transition('start1');
+        transition(location.hash ? location.hash.slice(1) : 'start1');
     </script>
 </body>
 </html>
