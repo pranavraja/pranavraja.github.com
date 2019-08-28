@@ -45,7 +45,7 @@
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js"></script>
     <script>
-        const ANIMATION_FRAME = 3500;
+        const ANIMATION_FRAME = 5000;
         const states = [
             {
                 name: 'start1',
@@ -90,7 +90,7 @@
             {
                 name: 'gloat',
                 desc: () => {
-                    setTimeout(transition.bind(null, "credits"), ANIMATION_FRAME*2.5);
+                    setTimeout(transition.bind(null, "credits"), ANIMATION_FRAME*2);
                     return "GAME OVER! Congrats you have won the game";
                 },
                 options: [
