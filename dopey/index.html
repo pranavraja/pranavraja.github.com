@@ -48,10 +48,10 @@
         const ANIMATION_FRAME = 3500;
         const states = [
             {
-                name: 'start',
+                name: 'start1',
                 desc: "You're just a poor robot trying to get by in the corporate world, but Steve from accounting is blocking you at every turn. Today he would like you to fill in form 32A again, to assist with escalation of form 58G. You've really had enough of Steve this time. What should you do?",
                 options: [
-                    { text: 'Fight Steve', transition: 'fight' },
+                    { text: 'Fight Steve', transition: 'fight1' },
                     { text: 'Explain the situation', transition: 'explain' },
                 ],
             },
@@ -66,12 +66,12 @@
                     if (rand < 1) return "This is a game, not real life. There's no need to be so boring.";
                 },
                 options: [
-                    { text: 'Fight Steve', transition: 'fight' },
+                    { text: 'Fight Steve', transition: 'fight1' },
                     { text: 'Explain the situation', transition: 'explain' },
                 ],
             },
             {
-                name: 'fight',
+                name: 'fight1',
                 desc: "BOOM! You knock Steve and his stupid greasy laptop to the floor. His can of soft drink spills everywhere and his fancy office chair goes spinning behind him.",
                 options: [
                     { text: "Gloat over your imminent victory", transition: 'gloat' },
@@ -172,7 +172,7 @@
                 }
             }
         }
-        transition('start');
+        transition('start1');
     </script>
 </body>
 </html>
