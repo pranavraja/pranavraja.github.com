@@ -46,17 +46,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.11.0/d3.min.js"></script>
     <script>
         const ANIMATION_FRAME = 5000;
-        const states = [
-            {
-                name: 'start1',
+        var transitionTimeout;
+        const states = {
+            'start1': {
                 desc: "You're just a poor robot trying to get by in the corporate world, but Steve from accounting is blocking you at every turn. Today he would like you to fill in form 32A again, to assist with escalation of form 58G. You've really had enough of Steve this time. What should you do?",
                 options: [
                     { text: 'Fight Steve', transition: 'fight1' },
-                    { text: 'Explain the situation', transition: 'explain' },
+                    { text: 'Explain the situation', transition: 'explain1' },
                 ],
             },
-            {
-                name: 'explain',
+            'explain1': {
                 desc: () => {
                     const rand = Math.random();
                     if (rand < 0.2) return "Come on, are you a robot that feels no pain, or a f**king coward? Let's try that again";
@@ -67,11 +66,10 @@
                 },
                 options: [
                     { text: 'Fight Steve', transition: 'fight1' },
-                    { text: 'Explain the situation', transition: 'explain' },
+                    { text: 'Explain the situation', transition: 'explain1' },
                 ],
             },
-            {
-                name: 'fight1',
+            'fight1': {
                 desc: "BOOM! You knock Steve and his stupid greasy laptop to the floor. His can of soft drink spills everywhere and his fancy office chair goes spinning behind him.",
                 options: [
                     { text: "Gloat over your imminent victory", transition: 'gloat' },
@@ -79,77 +77,68 @@
                     { text: "Apologise to Steve, you didn't mean to hurt him", transition: 'apologise' },
                 ],
             },
-            {
-                name: 'fight2',
+            'fight2': {
                 desc: "Steve is still on the ground struggling",
                 options: [
                     { text: "Gloat over your victory", transition: 'gloat' },
                     { text: "Kick Steve while he is down to teach him some respect", transition: 'kick' }
                 ],
             },
-            {
-                name: 'gloat',
+            'gloat': {
                 desc: () => {
-                    setTimeout(transition.bind(null, "credits"), ANIMATION_FRAME*2);
+                    transitionTimeout = setTimeout(transition.bind(null, "credits"), ANIMATION_FRAME*2);
                     return "GAME OVER! Congrats you have won the game";
                 },
                 options: [
                     { text: 'Play again', transition: 'start1' },
                 ],
             },
-            {
-                name: 'apologise',
+            'apologise': {
                 desc: "Why would you do that? Steve is a terrible person",
                 options: [
                     { text: 'Go back', transition: 'fight2' },
                 ],
             },
-            {
-                name: 'kick',
+            'kick': {
                 desc: () => {
-                    setTimeout(transition.bind(null, "kick2"), ANIMATION_FRAME);
+                    transitionTimeout = setTimeout(transition.bind(null, "kick2"), ANIMATION_FRAME);
                     return "Alright, you're going for it. You take a few seconds to prepare the kick...";
                 },
                 options: [],
             },
-            {
-                name: 'kick2',
+            'kick2': {
                 desc: () => {
-                    setTimeout(transition.bind(null, "kick3"), ANIMATION_FRAME);
+                    transitionTimeout = setTimeout(transition.bind(null, "kick3"), ANIMATION_FRAME);
                     return "You didn't spot that Steve was secretly holding a clipboard. He grabs the clipboard hard and SMASHES IT ACROSS YOUR BODY!";
                 },
                 options: [],
             },
-            {
-                name: 'kick3',
+            'kick3': {
                 desc: "You're on the floor now with a broken arm and some loose screws, and Steve's getting up and grabbing his laptop to finish the job",
                 options: [
                     { text: 'RUN!', transition: 'run' },
                 ],
             },
-            {
-                name: 'run',
+            'run': {
                 desc: () => {
-                    setTimeout(transition.bind(null, "run2"), ANIMATION_FRAME);
+                    transitionTimeout = setTimeout(transition.bind(null, "run2"), ANIMATION_FRAME);
                     return "You get up and hobble away as fast as you can. Steve is in pursuit but you lose him quickly.";
                 },
                 options: [],
             },
-            {
-                name: 'run2',
+            'run2': {
                 desc: "GAME OVER! You're finally out of range of Steve, but you've lost the game.",
                 options: [
                     { text: 'Play again', transition: 'start1' },
                 ],
             },
-            {
-                name: 'credits',
+            'credits': {
                 desc: "This game is a Rajacom original production. Thanks to the relevant certification authorities for allowing this game to be distributed globally in its original uncut form.",
                 options: [
                     { text: 'Play again', transition: 'start1' },
                 ],
             },
-        ];
+        };
 
         let img = d3.select('#pic');
         let footer = d3.select('#footer-text');
@@ -159,28 +148,27 @@
         }
 
         function transition(name) {
-            for (let i=0; i < states.length; i++) {
-                if (states[i].name == name) {
-                    const state = states[i];
-
-                    let options = d3.select('#options').selectAll('li').data(state.options);
-                    options.enter().append('li').merge(options).text(d => {
-                        if (typeof d.text == 'function') {
-                            return d.text();
-                        }
-                        return d.text;
-                    }).on('click', clickOption);
-                    options.exit().remove();
-                    img.attr('src', 'img/'+state.name+'.png');
-                    footer.text(() => {
-                        if (typeof state.desc == 'function') {
-                            return state.desc();
-                        }
-                        return state.desc;
-                    });
-                    return;
-                }
+            clearTimeout(transitionTimeout);
+            const state = states[name];
+            if (!state) {
+                console.warn(`undefined state ${name}`);
+                return;
             }
+            let options = d3.select('#options').selectAll('li').data(state.options);
+            options.enter().append('li').merge(options).text(d => {
+                if (typeof d.text == 'function') {
+                    return d.text();
+                }
+                return d.text;
+            }).on('click', clickOption);
+            options.exit().remove();
+            img.attr('src', 'img/'+name+'.png');
+            footer.text(() => {
+                if (typeof state.desc == 'function') {
+                    return state.desc();
+                }
+                return state.desc;
+            });
         }
         transition(location.hash ? location.hash.slice(1) : 'start1');
     </script>
