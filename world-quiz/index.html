@@ -41,7 +41,7 @@
     <main>
     <form onSubmit="guess(document.getElementById('country').value); event.preventDefault(); return false">
         <h3>Guess the red country</h3>
-        <p>(Must be spelled exactly right)</p>
+        <p>(exact English spelling required)</p>
         <input type="text" id="country" placeholder="Country" autocomplete="off"><br><br>
         <button type="submit">Check</button>
         <button type="button" class="skip" onClick="skip()">Skip</button>
@@ -56,7 +56,7 @@
     </footer>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script>
-        const countries = {"Chile":"chi","Argentina":"arg","Uruguay":"uru","Paraguay":"para","Bolivia":"bol","Peru":"per","Ecuador":"ec","Brazil":"br","Colombia":"col","Venezuela":"ven","Guyana":"guy","Suriname":"suri","Nicaragua":"nica","Guatemala":"guat","Mexico":"mx","United States":"usa","Canada":"ca","Denmark":"dk","New Zealand":"nz","Australia":"aussie","Papua New Guinea":"png","Russia":"ussr","Madagascar":"scar","Indonesia":"indo","Philippines":"phil","Malaysia":"malay","Vietnam":"viet","Thailand":"thai","Cambodia":"cam","Laos":"laos","Myanmar":"burm","India":"in","Nepal":"nep","Bangladesh":"bang","Japan":"jap","South Korea":"rok","North Korea":"dprk","Mongolia":"mong","China":"cn","Kazakhstan":"kaz","Uzbekistan":"uz","Turkmenistan":"turkmeni","Kyrgyzstan":"kyr","Tajikistan":"taji","Pakistan":"pak","Afghanistan":"afgh","Iran":"ir","Azerbaijan":"azer","Oman":"om","Yemen":"yem","Saudi Arabia":"arab","Turkey":"tkey","Jordan":"jor","Syria":"syr","Iraq":"iq","Spain":"es","United Kingdom":"uk","Ireland":"ie","Iceland":"ic","Norway":"nway","Sweden":"swe","Finland":"fi","South Africa":"saf","Namibia":"nam","Botswana":"bsw","Mozambique":"moz","Zimbabwe":"bab","Zambia":"zam","Angola":"ang","Tanzania":"tz","Democratic Republic of the Congo":"drc","Somalia":"som","Kenya":"ken","Uganda":"uga","Ethiopia":"eth","South Sudan":"ss","Sudan":"sud","Eritrea":"eri","Republic of the Congo":"cong","Gabon":"gab","Central African Republic":"car","Cameroon":"roon","Nigeria":"nig","Chad":"ch","Niger":"ni","Benin":"ben","Ivory Coast":"ico","Sierra Leone":"sl","Ghana":"gha","Burkina Faso":"faso","Mali":"mal","Guinea":"gui","Senegal":"sen","Mauritania":"mauri","Morocco":"mor","Algeria":"alg","Tunisia":"tun","Libya":"lib","Egypt":"eg","France":"fr","Netherlands":"net","Germany":"de","Italy":"it","Greece":"gr","Serbia":"serb","Bulgaria":"bulg","Romania":"rom","Ukraine":"ukr","Belarus":"brus","Lithuania":"lit","Poland":"pole","Czech Republic":"cz","Austria":"austria","Hungary":"hun"}; 
+        const countries = {"Chile":"chi","Argentina":"arg","Uruguay":"uru","Paraguay":"para","Bolivia":"bol","Peru":"per","Ecuador":"ec","Brazil":"br","Colombia":"col","Venezuela":"ven","Guyana":"guy","Suriname":"suri","Nicaragua":"nica","Guatemala":"guat","Mexico":"mx","United States":"usa","Canada":"ca","Denmark":"dk","New Zealand":"nz","Australia":"aussie","Papua New Guinea":"png","Russia":"ussr","Madagascar":"scar","Indonesia":"indo","Philippines":"phil","Malaysia":"malay","Vietnam":"viet","Thailand":"thai","Cambodia":"cam","Laos":"laos","Myanmar":"burm","India":"in","Nepal":"nep","Bangladesh":"bang","Japan":"jap","South Korea":"rok","North Korea":"dprk","Mongolia":"mong","China":"cn","Kazakhstan":"kaz","Uzbekistan":"uz","Turkmenistan":"turkmeni","Kyrgyzstan":"kyr","Tajikistan":"taji","Pakistan":"pak","Afghanistan":"afgh","Iran":"ir","Azerbaijan":"azer","Oman":"om","Yemen":"yem","Saudi Arabia":"arab","Turkey":"tkey","Jordan":"jor","Syria":"syr","Iraq":"iq","Spain":"es","United Kingdom":"uk","Ireland":"ie","Iceland":"ic","Norway":"nway","Sweden":"swe","Finland":"fi","South Africa":"saf","Namibia":"nam","Botswana":"bsw","Mozambique":"moz","Zimbabwe":"bab","Zambia":"zam","Angola":"ang","Tanzania":"tz","Democratic Republic of the Congo":"drc","Somalia":"som","Kenya":"ken","Uganda":"uga","Ethiopia":"eth","South Sudan":"ss","Sudan":"sud","Eritrea":"eri","Republic of the Congo":"cong","Congo":"cong","Gabon":"gab","Central African Republic":"car","Cameroon":"roon","Nigeria":"nig","Chad":"ch","Niger":"ni","Benin":"ben","Ivory Coast":"ico","Sierra Leone":"sl","Ghana":"gha","Burkina Faso":"faso","Mali":"mal","Guinea":"gui","Senegal":"sen","Mauritania":"mauri","Morocco":"mor","Algeria":"alg","Tunisia":"tun","Libya":"lib","Egypt":"eg","France":"fr","Netherlands":"net","Germany":"de","Italy":"it","Greece":"gr","Serbia":"serb","Bulgaria":"bulg","Romania":"rom","Ukraine":"ukr","Belarus":"brus","Lithuania":"lit","Poland":"pole","Czech Republic":"cz","Austria":"austria","Hungary":"hun"}; 
         const paths = [
             ["rok", "M660 130h10v10h-10z"],
             ["yem", "M490 200h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10z"],
@@ -221,14 +221,9 @@
             document.getElementById('clue').innerHTML = 'CLUE: ' + paths[selected][0];
         }
 
-        function shuffle(a) {
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
-        shuffle(paths);
+        // Largest paths first to make it easier
+        paths.sort((a, b) => b[1].length-a[1].length);
+
         refresh();
     </script>
 </body>
