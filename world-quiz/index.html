@@ -39,7 +39,7 @@
         <p>Pick the country that takes up the most area of the red highlighted blocks.</p>
     </header>
     <main>
-    <form onSubmit="guess(document.getElementById('country').value); event.preventDefault(); return false">
+    <form onSubmit="guess(document.getElementById('country').value.replace(/^\s+|\s+$/g, '')); event.preventDefault(); return false">
         <h3>Guess the red country</h3>
         <p>(exact English spelling required)</p>
         <input type="text" id="country" placeholder="Country" autocomplete="off"><br><br>
