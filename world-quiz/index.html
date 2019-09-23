@@ -27,6 +27,9 @@
     button.clue {
         background: blue;
     }
+    button.reset {
+        background: red;
+    }
     input {
         text-transform: uppercase;
         font-size: 125%;
@@ -52,6 +55,7 @@
     </main>
     <footer>
         <button type="button" class="skip" onClick="selected=paths.length; skip()">Finish quiz / give up</button>
+        <button type="button" class="reset" onClick="localStorage.correct='{}';correct={};selected=-1;skip()">Restart</button>
         <span id="results"></span>
     </footer>
     <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -174,14 +178,14 @@
             ["sl", "M350 230h10v10h-10z"],
             ["indo", "M690 270h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm-30 0h10v10h-10zm-10-20h10v10h-10zm-10 10h10v10h-10zm-10 20h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10z"]
         ];
-        let correct = {};
-        let selected = 0;
+        let correct = localStorage.correct ? JSON.parse(localStorage.correct) : {};
+        let selected = localStorage.selected || 0;
 
         function refresh() {
             if (selected >= paths.length) {
                 const numCorrect = Object.keys(correct).length;
                 const score = Math.floor(numCorrect * 100 / paths.length);
-                document.getElementById('results').innerHTML = `You scored ${numCorrect} / ${paths.length} (${score}%). Refresh to try again`;
+                document.getElementById('results').innerHTML = `You scored ${numCorrect} / ${paths.length} (${score}%). Click Restart to try again`;
                 return;
             }
             let nodes = d3.select("svg").selectAll("path").data(paths);
@@ -204,6 +208,7 @@
                 }
                 if (k.toLowerCase() == val.toLowerCase()) {
                     correct[paths[selected][0]] = 'correct';
+                    localStorage.correct = JSON.stringify(correct);
                     skip();
                     return;
                 }
@@ -212,6 +217,7 @@
 
         function skip() {
             selected++;
+            localStorage.selected = selected;
             document.getElementById('country').value='';
             document.getElementById('clue').innerHTML='';
             refresh();
