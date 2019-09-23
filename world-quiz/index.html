@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style type="text/css">
+    svg {
+        background-color: lightblue;
+    }
+    form {
+        float:right;
+    }
+    main {
+        max-width: 80%;
+    }
+    button {
+        padding: 0.5rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-weight: bold;
+        color: white;
+    }
+    button[type='submit'] {
+        background: black;
+    }
+    button.skip {
+        background: green;
+    }
+    button.clue {
+        background: blue;
+    }
+    input {
+        text-transform: uppercase;
+        font-size: 125%;
+    }
+</style>
+</head>
+<body>
+    <header>
+        <h1>Geography tester</h1>
+        <p>Pick the country that takes up the most area of the red highlighted pixels.</p>
+    </header>
+    <main>
+    <form onSubmit="guess(document.getElementById('country').value); event.preventDefault(); return false">
+        <h3>Guess the red country</h3>
+        <p>(Must be spelled exactly right)</p>
+        <input type="text" id="country" placeholder="Country" autocomplete="off"><br><br>
+        <button type="submit">Check</button>
+        <button type="button" class="skip" onClick="skip()">Skip</button>
+        <button type="button" class="clue" onClick="clue()">Clue</button>
+        <p id="clue"></p>
+    </form>
+    <svg height="450" width="810"></svg>
+    </main>
+    <footer>
+        <button type="button" class="skip" onClick="selected=paths.length; skip()">Finish quiz / give up</button>
+        <span id="results"></span>
+    </footer>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script>
+        const countries = {"Chile":"chi","Argentina":"arg","Uruguay":"uru","Paraguay":"para","Bolivia":"bol","Peru":"per","Ecuador":"ec","Brazil":"br","Colombia":"col","Venezuela":"ven","Guyana":"guy","Suriname":"suri","Nicaragua":"nica","Guatemala":"guat","Mexico":"mx","United States":"usa","Canada":"ca","Denmark":"dk","New Zealand":"nz","Australia":"aussie","Papua New Guinea":"png","Russia":"ussr","Madagascar":"scar","Indonesia":"indo","Philippines":"phil","Malaysia":"malay","Vietnam":"viet","Thailand":"thai","Cambodia":"cam","Laos":"laos","Myanmar":"burm","India":"in","Nepal":"nep","Bangladesh":"bang","Japan":"jap","South Korea":"rok","North Korea":"dprk","Mongolia":"mong","China":"cn","Kazakhstan":"kaz","Uzbekistan":"uz","Turkmenistan":"turkmeni","Kyrgyzstan":"kyr","Tajikistan":"taji","Pakistan":"pak","Afghanistan":"afgh","Iran":"ir","Azerbaijan":"azer","Oman":"om","Yemen":"yem","Saudi Arabia":"arab","Turkey":"tkey","Jordan":"jor","Syria":"syr","Iraq":"iq","Spain":"es","United Kingdom":"uk","Ireland":"ie","Iceland":"ic","Norway":"nway","Sweden":"swe","Finland":"fi","South Africa":"saf","Namibia":"nam","Botswana":"bsw","Mozambique":"moz","Zimbabwe":"bab","Zambia":"zam","Angola":"ang","Tanzania":"tz","Democratic Republic of the Congo":"drc","Somalia":"som","Kenya":"ken","Uganda":"uga","Ethiopia":"eth","South Sudan":"ss","Sudan":"sud","Eritrea":"eri","Republic of the Congo":"cong","Gabon":"gab","Central African Republic":"car","Cameroon":"roon","Nigeria":"nig","Chad":"ch","Niger":"ni","Benin":"ben","Ivory Coast":"ico","Sierra Leone":"sl","Ghana":"gha","Burkina Faso":"faso","Mali":"mal","Guinea":"gui","Senegal":"sen","Mauritania":"mauri","Morocco":"mor","Algeria":"alg","Tunisia":"tun","Libya":"lib","Egypt":"eg","France":"fr","Netherlands":"net","Germany":"de","Italy":"it","Greece":"gr","Serbia":"serb","Bulgaria":"bulg","Romania":"rom","Ukraine":"ukr","Belarus":"brus","Lithuania":"lit","Poland":"pole","Czech Republic":"cz","Austria":"austria","Hungary":"hun"}; 
+        const paths = [
+            ["rok", "M660 130h10v10h-10z"],
+            ["yem", "M490 200h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10z"],
+            ["gr", "M430 120h10v10h-10z"],
+            ["alg", "M390 140h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10z"],
+            ["uga", "M450 250h10v10h-10z"],
+            ["zam", "M450 290h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10z"],
+            ["rom", "M440 100h10v10h-10zm-10 0h10v10h-10z"],
+            ["tz", "M460 270h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10z"],
+            ["jap", "M700 110h10v10h-10zm-10 20h10v10h-10zm-10 10h10v10h-10z"],
+            ["dprk", "M660 120h10v10h-10z"],
+            ["ven", "M240 230h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10z"],
+            ["moz", "M460 300h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["dk", "M400 70h10v10h-10z"],
+            ["mor", "M370 140h10v10h-10zm-10 10h10v10h-10zm-10 10h10v10h-10zm0 10h10v10h-10zm-10 10h10v10h-10z"],
+            ["dk", "M320 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM310 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM300 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM290 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM280 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM270 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM260 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM250 0h10v10h-10zm0 10h10v10h-10zM240 0h10v10h-10zm-10 0h10v10h-10z"],
+            ["de", "M400 80h10v10h-10zm0 10h10v10h-10z"],
+            ["arab", "M490 180h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10z"],
+            ["bang", "M580 180h10v10h-10z"],
+            ["pak", "M540 140h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10z"],
+            ["gui", "M350 220h10v10h-10z"],
+            ["pole", "M420 80h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10z"],
+            ["ussr", "M790 30h10v10h-10zm-10 0h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 30h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-80h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM620 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM610 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM600 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm90 10h10v10h-10zM570 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm40 10h10v10h-10zm-10 0h10v10h-10zm-10 0h10v10h-10zm-10 0h10v10h-10zm-10 0h10v10h-10zm-10 0h10v10h-10zm-10 0h10v10h-10zm30 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-80h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm190 30h10v10h-10zm-10 0h10v10h-10z"],
+  ["bab", "M440 320h10v10h-10z"],
+            ["guy", "M240 240h10v10h-10z"],
+            ["viet", "M620 210h10v10h-10zm-10-30h10v10h-10z"],
+            ["tkey", "M470 120h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10z"],
+            ["eg", "M450 160h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["ec", "M200 260h10v10h-10z"],
+            ["afgh", "M530 130h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10z"],
+            ["arg", "M250 350h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["sen", "M340 210h10v10h-10z"],
+            ["es", "M370 120h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10z"],
+            ["sud", "M450 190h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["ico", "M360 240h10v10h-10zm0-10h10v10h-10z"],
+            ["per", "M220 300h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["aussie", "M720 350h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["net", "M390 80h10v10h-10z"],
+            ["nep", "M560 160h10v10h-10z"],
+            ["ken", "M460 250h10v10h-10zm0 10h10v10h-10z"],
+            ["jor", "M460 150h10v10h-10z"],
+            ["cam", "M610 210h10v10h-10zm0 10h10v10h-10z"],
+            ["burm", "M590 170h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["tun", "M400 140h10v10h-10z"],
+            ["taji", "M540 130h10v10h-10z"],
+            ["mong", "M640 100h10v10h-10zm-10 0h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10z"],
+            ["om", "M500 180h10v10h-10zm0 10h10v10h-10z"],
+            ["mx", "M170 190h10v10h-10zm-10 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10z"],
+            ["bol", "M240 310h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10z"],
+            ["eth", "M480 230h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["col", "M220 240h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10z"],
+            ["ch", "M420 190h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["br", "M290 280h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-80h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-110h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-80h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["swe", "M420 30h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["ca", "M250 90h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10zm-10-80h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-80h10v10h-10zm0 60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM190 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM180 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM150 0h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM130 0h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM110 0h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-80h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zM90 30h10v10H90zm0 10h10v10H90zm0 10h10v10H90zm0 10h10v10H90zm0 10h10v10H90zm0 10h10v10H90zM80 30h10v10H80zm0 10h10v10H80zm0 10h10v10H80zm0 10h10v10H80zM70 30h10v10H70zm0 10h10v10H70zm0 10h10v10H70zM60 30h10v10H60zm0 10h10v10H60zm0 10h10v10H60z"],
+            ["som", "M480 220h10v10h-10zm0 20h10v10h-10zm-10 10h10v10h-10z"],
+            ["cz", "M410 90h10v10h-10z"],
+            ["austria", "M410 100h10v10h-10z"],
+            ["guat", "M170 200h10v10h-10z"],
+            ["kaz", "M560 90h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10z"],
+            ["usa", "M80 70h10v10H80zm140 30h10v10h-10zm-10 10h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm90-20h10v10h-10zm-10 0h10v10h-10zM70 60h10v10H70zM50 30h10v10H50zm0 10h10v10H50zm0 10h10v10H50zM40 20h10v10H40zm0 10h10v10H40zm0 10h10v10H40zm0 10h10v10H40zM30 20h10v10H30zm0 10h10v10H30zm0 10h10v10H30zm0 10h10v10H30zm0 10h10v10H30zM20 20h10v10H20zm0 10h10v10H20zm0 10h10v10H20zm0 10h10v10H20zm0 10h10v10H20zM10 30h10v10H10zm0 10h10v10H10zm0 10h10v10H10z"],
+            ["chi", "M220 330h10v10h-10zm0 10h10v10h-10zm-10 40h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["brus", "M440 70h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10z"],
+            ["ukr", "M460 90h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm-10 0h10v10h-10z"],
+            ["mal", "M380 190h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10z"],
+            ["faso", "M370 210h10v10h-10zm0 10h10v10h-10z"],
+            ["laos", "M610 190h10v10h-10z"],
+            ["kyr", "M540 120h10v10h-10z"],
+            ["para", "M250 340h10v10h-10zm-10-10h10v10h-10z"],
+            ["hun", "M420 100h10v10h-10z"],
+            ["malay", "M640 240h10v10h-10zm-10 10h10v10h-10z"],
+            ["saf", "M440 340h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["thai", "M610 200h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 20h10v10h-10z"],
+            ["bulg", "M430 110h10v10h-10z"],
+            ["gab", "M400 250h10v10h-10zm0 10h10v10h-10z"],
+            ["png", "M700 270h10v10h-10zm0 10h10v10h-10z"],
+            ["ben", "M380 220h10v10h-10z"],
+            ["roon", "M410 230h10v10h-10zm-10 10h10v10h-10z"],
+            ["uz", "M530 120h10v10h-10zm-10 0h10v10h-10zm-10-10h10v10h-10z"],
+            ["car", "M430 230h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10z"],
+            ["serb", "M420 110h10v10h-10z"],
+            ["uk", "M370 70h10v10h-10zm0 10h10v10h-10z"],
+            ["eri", "M460 200h10v10h-10z"],
+            ["ang", "M420 290h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["cn", "M670 100h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-70h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-50h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10z"],
+            ["iq", "M480 150h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10z"],
+            ["ir", "M510 140h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10z"],
+            ["it", "M410 120h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10z"],
+            ["cong", "M410 250h10v10h-10zm0 10h10v10h-10z"],
+            ["mauri", "M360 170h10v10h-10v-10zm0 10h10v10h-10v-10zm0 10h10v10h-10v-10zm0 10h10v10h-10v-10zm-10-20h10v10h-10v-10zm0 10h10v10h-10v-10zm0 10h10v10h-10v-10zm-10-10h10v10h-10v-10zm0 10h10v10h-10v-10z"],
+            ["ic", "M340 40h10v10h-10zm-10 0h10v10h-10z"],
+            ["scar", "M480 310h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["ie", "M360 80h10v10h-10z"],
+            ["ni", "M410 190h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10z"],
+            ["lib", "M430 150h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["nam", "M420 320h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["lit", "M430 70h10v10h-10z"],
+            ["nz", "M770 390h10v10h-10zm-10 10h10v10h-10zm0 10h10v10h-10z"],
+            ["nica", "M180 210h10v10h-10z"],
+            ["azer", "M480 120h10v10h-10z"],
+            ["nway", "M440 20h10v10h-10zm-10 0h10v10h-10zm-20 10h10v10h-10zm-10 10h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10z"],
+            ["fr", "M390 90h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["bsw", "M440 330h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["nig", "M400 220h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm-10 0h10v10h-10z"],
+            ["suri", "M250 240h10v10h-10z"],
+            ["syr", "M460 140h10v10h-10z"],
+            ["fi", "M440 30h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["drc", "M440 250h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-40h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10z"],
+            ["in", "M590 160h10v10h-10zm-10 10h10v10h-10zm-10 0h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-60h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10z"],
+            ["ss", "M450 220h10v10h-10zm0 10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10z"],
+            ["turkmeni", "M520 130h10v10h-10zm-10-10h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10z"],
+            ["phil", "M660 230h10v10h-10v-10zm-10-30h10v10h-10v-10z"],
+            ["uru", "M250 360h10v10h-10zm0 10h10v10h-10z"],
+            ["gha", "M370 230h10v10h-10z"],
+            ["sl", "M350 230h10v10h-10z"],
+            ["indo", "M690 270h10v10h-10zm0 10h10v10h-10zm-10-10h10v10h-10zm-30 0h10v10h-10zm-10-20h10v10h-10zm-10 10h10v10h-10zm-10 20h10v10h-10zm-10-20h10v10h-10zm0 10h10v10h-10zm-10-20h10v10h-10z"]
+        ];
+        let correct = {};
+        let selected = 0;
+
+        function refresh() {
+            if (selected >= paths.length) {
+                const numCorrect = Object.keys(correct).length;
+                const score = Math.floor(numCorrect * 100 / paths.length);
+                document.getElementById('results').innerHTML = `You scored ${numCorrect} / ${paths.length} (${score}%). Refresh to try again`;
+                return;
+            }
+            let nodes = d3.select("svg").selectAll("path").data(paths);
+            nodes.enter().append("path").merge(nodes).attr("stroke", "white").attr("stroke-width", "2").attr("stroke-linejoin", "round").attr("d", d => {
+                return d[1];
+            }).attr("fill", (d, i) => {
+                if (correct[d[0]]) return "green";
+                if (selected == i) return "red";
+                return "black";
+            }).attr("class", d => {
+                return "pixel " + d[0];
+            })
+        }
+
+        function guess(val) {
+            for (let k in countries) {
+                const v = countries[k];
+                if (v != paths[selected][0]) {
+                    continue;
+                }
+                if (k.toLowerCase() == val.toLowerCase()) {
+                    correct[paths[selected][0]] = 'correct';
+                    skip();
+                    return;
+                }
+            }
+        }
+
+        function skip() {
+            selected++;
+            document.getElementById('country').value='';
+            document.getElementById('clue').innerHTML='';
+            refresh();
+        }
+
+        function clue() {
+            document.getElementById('clue').innerHTML = 'CLUE: ' + paths[selected][0];
+        }
+
+        function shuffle(a) {
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        shuffle(paths);
+        refresh();
+    </script>
+</body>
