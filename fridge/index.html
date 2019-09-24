@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style type="text/css">
+    .hidden {
+        display: none;
+    }
+    textarea {
+        max-width: 100%;
+    }
+    button {
+        color: white;
+        padding: 0.5rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        background: blue;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/4.0.30/Dropbox-sdk.min.js"></script>
+<header id="header">
+    <a href="" id="authlink" class="button">Login via dropbox</a>
+</header>
+<main id="main" class="hidden">
+    <textarea id="shoppinglist" rows="20" cols="100">Loading...</textarea><br>
+    <button type="button" onClick="persist(document.getElementById('shoppinglist').value)">Save</button>
+</main>
+<script>
+    // Parses the url and gets the access token if it is in the urls hash
+    function getAccessTokenFromUrl() {
+        let params = {};
+        window.location.hash.slice(1).split('&').forEach(p => {
+            const kv = p.split('=');
+            params[kv[0]] = kv[1] || kv[0];
+        })
+        return params.access_token;
+    }
+    function justAuthenticated() {
+      return !!getAccessTokenFromUrl();
+    }
+
+    const CLIENT_ID = "5852fznfzj4b32l";
+    let dbx = new Dropbox.Dropbox({ clientId: CLIENT_ID, fetch: window.fetch });
+
+    const SHOPPING_LIST = "/test.txt";
+
+    function persist(v) {
+        dbx.filesUpload({ path: SHOPPING_LIST, mode: { ".tag": "overwrite" }, contents: v}).then(res => {
+            alert("done!");
+        }).catch(err => {
+            alert("error " + err);
+        })
+    }
+
+    if (justAuthenticated()) {
+        localStorage.accessToken = getAccessTokenFromUrl();
+    }
+    if (localStorage.accessToken) {
+        document.getElementById('header').classList.add('hidden');
+        document.getElementById('main').classList.remove('hidden');
+        dbx = new Dropbox.Dropbox({ accessToken: localStorage.accessToken, fetch: window.fetch });
+        dbx.filesDownload({path: SHOPPING_LIST})
+        .then(function(response) {
+            var blob = response.fileBlob;
+            var reader = new FileReader();
+            reader.addEventListener("loadend", function() {
+                document.getElementById('shoppinglist').value = reader.result;
+            });
+            reader.readAsText(blob);
+        })
+        .catch(function(error) {
+          console.error(error);
+        });
+    } else {
+        var authUrl = dbx.getAuthenticationUrl(window.location);
+        document.getElementById('authlink').href = authUrl;
+    }
+</script>
+</body>
