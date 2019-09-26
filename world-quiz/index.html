@@ -21,6 +21,9 @@
     button[type='submit'] {
         background: black;
     }
+    button.finish {
+        background: rebeccapurple;
+    }
     button.skip {
         background: green;
     }
@@ -54,7 +57,7 @@
     <svg height="450" width="810"></svg>
     </main>
     <footer>
-        <button type="button" class="skip" onClick="selected=paths.length; skip()">Finish quiz / give up</button>
+        <button type="button" class="finish" onClick="selected=paths.length; skip()">Finish quiz / give up</button>
         <button type="button" class="reset" onClick="localStorage.correct='{}';correct={};selected=-1;skip()">Restart</button>
         <span id="results"></span>
     </footer>
