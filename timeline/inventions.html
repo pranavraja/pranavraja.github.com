@@ -337,6 +337,8 @@ let correct = 0;
 let total = 0;
 
 function solve(event) {
+    if (a.classList.contains("correct") || a.classList.contains("wrong")) return;
+    if (b.classList.contains("correct") || b.classList.contains("wrong")) return;
     total++;
     const i = parseInt(a.getAttribute('data-index'));
     const j = parseInt(b.getAttribute('data-index'));
