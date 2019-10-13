@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style type="text/css">
+li {
+    cursor: pointer;
+    background: lightblue;
+    border: thin outline black;
+    padding: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin: 1rem;
+}
+li.correct {
+    background: mediumspringgreen;
+}
+li.wrong {
+    background: indianred;
+}
+button {
+    padding: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+<h2>Which came first?</h2>
+<ol>
+    <li id="invention-a"></li>
+    <li id="invention-b"></li>
+</ol>
+<button type="button" onClick="choose()">Next &rarr;</button>
+<p id="score"></p>
+<script>
+let inventions = [
+["1st century", `The Aeolipile, a simple steam turbine is recorded by Hero of Alexandria.`],
+["1st century", `Vending machines invented by Hero of Alexandria.`],
+["1st century", `Automatic doors invented by Hero of Alexandria.`],
+["118 AD", `Wheelbarrow was found in a tomb at Chengdu, Sichuan province during Han Dynasty China`],
+["132", `Seismometer and pendulum in Han Dynasty China, built by Zhang Heng. It is a large metal urn-shaped instrument which employed either a suspended pendulum or inverted pendulum acting on inertia, like the ground tremors from earthquakes, to dislodge a metal ball by a lever trip device.`],
+["Early 3rd century", `Woodblock printing is invented in Han Dynasty China. This made China become the world first print culture.`],
+["Late 3rd century", `Crank and connecting rod (Hierapolis sawmill) in Asia Minor, Roman Empire`],
+["Late 3rd–early 4th century", `Turbine in Africa (province), Roman Empire`],
+["4th century", `Fishing reel in Ancient China: In literary records, the earliest evidence of the fishing reel comes from a 4th-century AD work entitled Lives of Famous Immortals'.`],
+["347 AD", `Oil Wells and Borehole drilling in China. Such wells could reach depths of up to 240 m (790 ft).`],
+["4th century", `Stirrups in Ancient China: The first dependable representation of a rider with paired stirrups was found in China in a Jin dynasty tomb.`],
+["4th–5th century", `Paddle wheel boat (in De rebus bellicis) in Roman Empire`],
+["5th century", `The horse collar as a fully developed collar harness is developed in Southern and Northern Dynasties China. The earliest depiction of it is a Dunhuang cave mural from the Chinese Northern Wei Dynasty.`],
+["5th/6th century", `Pointed arch bridge (Karamagara Bridge) in Cappadocia, Eastern Roman Empire`],
+["after 500 AD", `Charkha (spinning wheel): invented in India`],
+["563 AD", `Pendentive dome (Hagia Sophia) in Constantinople, Eastern Roman Empire`],
+["577 AD", `Sulfur matches exist in China.`],
+["589 AD", `Toilet paper in Sui Dynasty China, first mentioned by the official Yan Zhitui, with full evidence of continual use in subsequent dynasties.`],
+["672 AD", `Greek fire in Constantinople, Byzantine Empire: Greek fire, an incendiary weapon likely based on petroleum or naphtha, is invented by Kallinikos, a Lebanese Greek refugee from Baalbek, as described by Theophanes. However, the historicity and exact chronology of this account is dubious, and it could be that Kallinikos merely introduced an improved version of an established weapon.`],
+["7th century", `The banknote is first developed in China during the Tang and Song dynasties, starting in the 7th century. Its roots are in merchant receipts of deposit during the Tang Dynasty, as merchants and wholesalers desire to avoid the heavy bulk of copper coinage in large commercial transactions.`],
+["7th century", `True porcelain is manufactured in northern China from roughly the beginning of the Tang Dynasty, while true porcelain was not manufactured in southern China until about 300 years later.`],
+["9th century", `Gunpowder in Tang Dynasty China: Gunpowder is, according to prevailing academic consensus, discovered by Chinese alchemists searching for an elixir of immortality. Evidence of gunpowder's first use in China comes from the Five Dynasties and Ten Kingdoms period. The earliest known recorded recipes for gunpowder are written by Zeng Gongliang, Ding Du, and Yang Weide in the Wujing Zongyao, a military manuscript compiled during the Song Dynasty.`],
+["9th century", `Algebra in Syria`],
+["9th century", `University in Morocco`],
+["9th century", `Numerical zero in Ancient India: The concept of zero as a number, and not merely a symbol for separation is attributed to India. In India, practical calculations are carried out using zero, which is treated like any other number by the 9th century, even in case of division.`],
+["10th century", `Fire lance in Song Dynasty China, with a tube of first bamboo and later on metal that shot a weak gunpowder blast of flame and shrapnel, its earliest depiction is a painting found at Dunhuang. Fire lance is the earliest firearm in the world and one of the earliest gunpowder weapons.`],
+["10th century", `Fireworks in Song Dynasty China: Fireworks first appear in China during the Song Dynasty, in the early age of gunpowder. Fireworks could be purchased from market vendors; these were made of sticks of bamboo packed with gunpowder.`],
+["10th century", `Dry docks in Song Dynasty China.`],
+["11th century", `Ambulance by Crusaders in Palestine and Lebanon`],
+["11th century", `Early versions of the Bessemer process are developed in East Asia`],
+["11th century", `Endless power-transmitting chain drive by Su Song for the development an astronomical clock (the Cosmic Engine)`],
+["1088", `Movable type in Song Dynasty China: The first record of a movable type system is in the Dream Pool Essays, which attributes the invention of the movable type to Bi Sheng.`],
+["1119", `Mariner's compass (wet compass) in Song Dynasty China: The earliest recorded use of magnetized needle for navigational purposes at sea is found in Zhu Yu's book. The typical Chinese navigational compass was in the form of a magnetic needle floating in a bowl of water. The familiar mariner's dry compass which uses a pivoting needle suspended above a compass-card in a glass box is invented in Medieval Europe and the Islamic World.`],
+["1206", `The camshaft, a shaft to which cams are attached, first described by Ismail al-Jazari`],
+["13th century", `Rocket for military and recreational uses date back to at least 13th-century China.`],
+["13th century", `The earliest form of mechanical escapement, the verge escapement in Europe.`],
+["1275", `Torpedo Concept by Hasan al-Rammah.`],
+["1277", `Land mine in Song Dynasty China: Textual evidence suggests that the first use of a land mine in history is by a Song Dynasty brigadier general known as Lou Qianxia, who uses an 'enormous bomb' (huo pao) to kill Mongol soldiers invading Guangxi.`],
+["1286", `Eyeglasses in Italy`],
+["13th century", `Explosive bomb in Jin dynasty Manchuria: Explosive bombs are used by the Jin dynasty against a Song Dynasty city. The first accounts of bombs made of cast iron shells packed with explosive gunpowder are documented in China and are called "thunder-crash bombs", coined during a Jin dynasty naval battle.`],
+["13th century", `Hand cannon in Yuan Dynasty China: The earliest hand cannon dates to archaeological evidence from a Heilongjiang excavation. There is also written evidence in the Yuanshi on Li Tang, an ethnic Jurchen commander under the Yuan Dynasty who suppresses the rebellion of the Christian prince Nayan with his "gun-soldiers" or chongzu, this being the earliest known event where this phrase is used.`],
+["Early to Mid 1300s", `Multistage rocket in Ming Dynasty China described in Huolongjing by Jiao Yu.`],
+["By at least 1326", `Cannon in Ming Dynasty China`],
+["1378", `Naval artillery in Korea`],
+["14th century", `Jacob's staff invented by Levi ben Gerson`],
+["14th century", `Naval mine in Ming Dynasty China: Mentioned in the Huolongjing military manuscript written by Jiao Yu and Liu Bowen, describing naval mines used at sea or on rivers and lakes, made of wrought iron and enclosed in an ox bladder. A later model is documented in Song Yingxing's encyclopedia.`],
+["Early 15th century", `Coil spring in Europe`],
+["15th century", `Mainspring in Europe`],
+["15th century", `Rifle in Europe`],
+["1420s", `Brace in Flandres, Holy Roman Empire`],
+["1439", `Printing press in Mainz, Germany: The printing press is invented in the Holy Roman Empire by Johannes Gutenberg, based on existing screw presses. The first confirmed record of a press appeared in a lawsuit against Gutenberg.`],
+["Mid 15th Century", `The Arquebus (also spelled Harquebus) is invented, possibly in Spain.`],
+["1480s", `Mariner's astrolabe in Portuguese circumnavigation of Africa`],
+["1494", `Double-entry bookkeeping system codified by Luca Pacioli`],
+["1551", `Taqi ad-Din describes a simple steam turbine-like device used in steam jacks.`],
+["1560", `Floating Dry Dock in Venice, Venetian Republic`],
+["1569", `Mercator Projection map created by Gerardus Mercator`],
+["1577", `Newspaper in Korea`],
+["1589", `Stocking frame: Invented by William Lee.`],
+["1594", `Backstaff: Invented by Captain John Davis.`],
+["By at least 1597", `Revolver: Invented by Hans Stopler.`],
+["1605", `Newspaper (Relation): Johann Carolus in Strassburg, Holy Roman Empire of the German Nation (see also List of the oldest newspapers)`],
+["1608", `Telescope: Patent applied for by Hans Lippershey in the Netherlands. Actual inventor unknown since it seemed to already be a common item being offered by the spectacle makers in the Netherlands with Jacob Metius also applying for patent and the son of Zacharias Janssen making a claim 47 years later that his father invented it.`],
+["c. 1620", `Compound microscopes, which combine an objective lens with an eyepiece to view a real image, first appear in Europe. Apparently derived from the telescope, actual inventor unknown, variously attributed to Zacharias Janssen, Cornelis Drebbel, and Galileo Galilei.`],
+["1630", `Slide rule: invented by William Oughtred`],
+["1642", `Mechanical calculator. The Pascaline is built by Blaise Pascal`],
+["1643", `Barometer: invented by Evangelista Torricelli, or possibly up to three years earlier by Gasparo Berti.`],
+["1650", `Vacuum pump: Invented by Otto von Guericke.`],
+["1656", `Pendulum clock: Invented by Christiaan Huygens. It was first conceptualized by Galileo Galilei but he was unable to create a working model.`],
+["1663", `Friction machine: Invented by Otto von Guericke.`],
+["1680", `Christiaan Huygens provides the first known description of a piston engine.`],
+["c. 1709", `Bartolomeo Cristofori crafts the first piano.`],
+["1709", `Daniel Gabriel Fahrenheit invents the alcohol thermometer.`],
+["1712", `Thomas Newcomen builds the first commercial steam engine to pump water out of mines. Newcomen's engine, unlike Thomas Savery's, uses a piston.`],
+["c. 1730", `Thomas Godfrey and John Hadley independently develop the octant`],
+["1733", `John Kay enables one person to operate a loom with the flying shuttle`],
+["1736", `John Harrison tests his first Sea Clock, H1.`],
+["1738", `Lewis Paul and John Wyatt invent the first mechanized cotton spinning machine.`],
+["1745", `Musschenbroek and Kleist independently develop the Leyden jar, an early form of capacitor.`],
+["1746", `John Roebuck invents the lead chamber process.`],
+["1755", `William Cullen invents the first artificial refrigeration machine.`],
+["1764", `James Hargreaves invents the spinning jenny.`],
+["1765", `James Watt invents the improved steam engine utilizing a separate condenser.`],
+["1767", `Joseph Priestley invents a method for the production of carbonated water.`],
+["1769", `Nicolas-Joseph Cugnot invents the first steam-powered vehicle capable of carrying passengers, an early car.`],
+["1770", `Richard Salter invents the earliest known design for a weighing scale.`],
+["1774", `John Wilkinson invents his boring machine, considered by some to be the first machine tool.`],
+["1775", `Jesse Ramsden invents the modern screw-cutting lathe.`],
+["1776", `John Wilkinson invents a mechanical air compressor that would become the prototype for all later mechanical compressors.`],
+["1783", `Claude de Jouffroy builds the first steamboat.`],
+["1783", `Joseph-Ralf and Jacques-Étienne Montgolfier build the first manned hot air balloon.`],
+["1785", `Martinus van Marum is the first to use the electrolysis technique.`],
+["1786", `Andrew Meikle invents the threshing machine.`],
+["1789", `Edmund Cartwright invents the power loom.`],
+["1790", `Thomas Saint invents the sewing machine.`],
+["1792", `Claude Chappe invents the modern semaphore telegraph.`],
+["1793", `Eli Whitney invents the modern cotton gin.`],
+["1795", `Joseph Bramah invents the hydraulic press.`],
+["1796", `Alois Senefelder invents the lithography printing technique.`],
+["1797", `Samuel Bentham invents plywood.`],
+["1798", `Edward Jenner develops the first successful vaccine, the smallpox vaccine.`],
+["1799", `George Medhurst invents the first motorized air compressor.`],
+["1799", `The first paper machine is invented by Louis-Nicolas Robert.`],
+["1800", `Alessandro Volta invents the voltaic pile, an early form of battery in Italy, based on previous works by Luigi Galvani.`],
+["1802", `Humphry Davy invents the arc lamp (exact date unclear; not practical as a light source until the invention of efficient electric generators).`],
+["1804", `Friedrich Sertürner discovers morphine as the first active alkaloid extracted from the opium poppy plant.`],
+["1804", `Richard Trevithick invents the steam locomotive.`],
+["1804", `Hanaoka Seishū creates tsūsensan, the first modern general anesthetic.`],
+["1807", `Nicéphore Niépce invents the first internal combustion engine capable of doing useful work.`],
+["1807", `François Isaac de Rivaz designs the first automobile powered by an internal combustion engine fuelled by hydrogen.`],
+["1807", `Robert Fulton expands water transportation and trade with the workable steamboat.`],
+["1810", `Nicolas Appert invents the canning process for food.`],
+["1811", `Friedrich Koenig invents the first powered printing press, which was also the first to use a cylinder.`],
+["1812", `William Reid Clanny pioneered the invention of the safety lamp which he improved in later years. Safety lamps based on Clanny's improved design were used until the adoption of electric lamps.`],
+["1814", `James Fox invents the modern planing machine, though Matthew Murray of Leeds and Richard Roberts of Manchester have also been credited at times with its invention.`],
+["1816", `Francis Ronalds builds the first working electric telegraph using electrostatic means.`],
+["1816", `Robert Stirling invents the Stirling engine.`],
+["1817", `Baron Karl von Drais invents the dandy horse, an early velocipede and precursor to the modern bicycle.`],
+["1818", `Marc Isambard Brunel invents the tunnelling shield.`],
+["1822", `Thomas Blanchard invents the pattern-tracing lathe (actually more like a shaper) and was completed by for the U.S. Ordnance Dept. The lathe can copy symmetrical shapes and is used for making gun stocks, and later, ax handles. The lathe's patent is in force for 42 years, the record for any U.S. patent.`],
+["1822", `Nicéphore Niépce invents Heliography, the first photographic process.`],
+["1822", `Charles Babbage, considered the "father of the computer", begins building the first programmable mechanical computer.`],
+["1823", `Johann Wolfgang Döbereiner invents the first lighter.`],
+["1824", `Johann Nikolaus von Dreyse invents the bolt-action rifle.`],
+["1825", `William Sturgeon invents the electromagnet.`],
+["1826", `John Walker invents the friction match.`],
+["1828", `James Beaumont Neilson develops the hot blast process.`],
+["1828", `Patrick Bell invents the reaping machine.`],
+["1828", `Hungarian physicist Ányos Jedlik invents the first commutated rotary electromechanical machine with electromagnets.`],
+["1829", `William Mann invents the compound air compressor.`],
+["1830", `Edwin Budding invents the lawn mower.`],
+["1831", `Michael Faraday invents a method of electromagnetic induction. It would be independently invented by Joseph Henry the following year.`],
+["1834", `Moritz von Jacobi, a German-born Russian, invents the first practical electric motor.`],
+["1835", `Joseph Henry invents the electromechanical relay.`],
+["1837", `Samuel Morse invents Morse code.`],
+["1838", `Moritz von Jacobi invents Electrotyping.`],
+["1839", `William Otis invents the steam shovel.`],
+["1839", `James Nasmyth invents the steam hammer.`],
+["1839", `Edmond Becquerel invents a method for the photovoltaic effect, effectively producing the first solar cell.`],
+["1841", `Alexander Bain devises a printing telegraph.`],
+["1842", `William Robert Grove invents the first fuel cell.`],
+["1842", `John Bennet Lawes invents superphosphate, the first man-made fertilizer.`],
+["1844", `Friedrich Gottlob Keller and, independently, Charles Fenerty come up with the wood pulp method of paper production.`],
+["1845", `Isaac Charles Johnson invents Modern Portland cement.`],
+["1846", `Henri-Joseph Maus invents the Tunnel boring machine.`],
+["1847", `Ascanio Sobrero invents Nitroglycerin, the first explosive made that was stronger than black powder.`],
+["1848", `Jonathan J. Couch invents the pneumatic drill.`],
+["1849", `Walter Hunt invents the first repeating rifle to use metallic cartridges (of his own design) and a spring-fed magazine.`],
+["1849", `James B. Francis invents the Francis turbine.`],
+["1850", `Sir William Armstrong invents the hydraulic accumulator.`],
+["1852", `Robert Bunsen is the first to use a chemical vapor deposition technique.`],
+["1852", `Elisha Otis invents the safety brake elevator.`],
+["1852", `Henri Giffard becomes the first person to make a manned, controlled and powered flight using a dirigible.`],
+["1853", `François Coignet invents reinforced concrete.`],
+["1855", `James Clerk Maxwell invents the first practical method for color photography, whether chemical or electronic.`],
+["1855", `Sir. Henry Bessemer patents the Bessemer process for making steel, with improvements made by others over the following years.`],
+["1856", `James Harrison produces the world's first practical ice making machine and refrigerator using the principle of vapour compression in Geelong, Australia.`],
+["1856", `William Henry Perkin invents Mauveine, the first synthetic dye.`],
+["1857", `Heinrich Geissler invents the Geissler tube.`],
+["1859", `Gaston Planté invents the lead acid battery, the first rechargeable battery.`],
+["1860", `Joseph Swan produces carbon fibers.`],
+["1862", `Alexander Parkes invents parkesine, also known as celluloid, the first man-made plastic.`],
+["1864", `Louis Pasteur invents the pasteurization process.`],
+["1865", `Carl Wilhelm Siemens and Pierre-Émile Martin invented the Siemens-Martin process for making steel.`],
+["1865", `Gregor Mendel publishes 'Versuche über Pflanzenhybriden' ("Experiments on Plant Hybridization"), effectively founding the science of genetics, though the importance of his work would not be appreciated until later on.`],
+["1867", `Alfred Nobel invents Dynamite, the first safely manageable explosive stronger than black powder.`],
+["1872", `J.E.T. Woods and J. Clark invented Stainless steel. Harry Brearley was the first to commercialize it.`],
+["1873", `Frederick Ransome invents the rotary kiln.`],
+["1873", `Sir William Crookes, a chemist, invents the Crookes radiometer as the by-product of some chemical research.`],
+["1873", `Zénobe Gramme invents the first commercial electrical generator, the Gramme machine.`],
+["1874", `Gustave Trouvé invents the first metal detector.`],
+["1876", `Nikolaus August Otto invents the Four-stroke cycle.`],
+["1876", `Alexander Graham Bell has a patent granted for the telephone. However, other inventors before Bell had worked on the development of the telephone and the invention had several pioneers.`],
+["1877", `Thomas Edison invents the first working phonograph.`],
+["1878", `Henry Fleuss is granted a patent for the first practical rebreather.`],
+["1878", `Lester Allan Pelton invents the Pelton wheel.`],
+["1879", `Joseph Swan and Thomas Edison both patent a functional Incandescent light bulb. Some two dozen inventors had experimented with electric incandescent lighting earlier but never came up with a practical design. Swan's, which he had been working on his for a while, had a low resistance so was only suited for small installations. Edison designed a high-resistance bulb as part of a large-scale commercial electric lighting utility.`],
+["1881", `Nikolay Benardos presents carbon arc welding, the first practical arc welding method.`],
+["1884", `Hiram Maxim invents the recoil-operated Maxim gun, ushering in the age of semi- and fully automatic firearms.`],
+["1884", `Paul Vieille invents Poudre B, the first smokeless powder for firearms.`],
+["1884", `Sir Charles Parsons invents the modern steam turbine.`],
+["1884", `Hungarian engineers Károly Zipernowsky, Ottó Bláthy and Miksa Déri intvent the closed core high efficiency transformer and the AC parallel power distribution.`],
+["1885", `John Kemp Starley invents the modern bicycle.`],
+["1886", `Carl Gassner invents the zinc-carbon battery, the first dry cell battery, making portable electronics practical.`],
+["1886", `Charles Martin Hall and independently Paul Héroult invent the Hall–Héroult process for economically producing aluminum.`],
+["1886", `Karl Benz invents the first petrol or gasoline powered auto-mobile (car).`],
+["1887", `Carl Josef Bayer invents the Bayer process for the production of alumina.`],
+["1887", `James Blyth invents the first wind turbine used for generating electricity.`],
+["1887", `John Stewart MacArthur, working in collaboration with brothers Dr. Robert and Dr. William Forrest develops the process of gold cyanidation.`],
+["1888", `John J. Loud invents the ballpoint pen.`],
+["1888", `Heinrich Hertz publishes a conclusive proof of James Clerk Maxwell's electromagnetic theory in experiments that also demonstrate the existence of radio waves. The effects of electromagnetic waves had been observed by many people before this but no usable theory explaining them existed until Maxwell.`],
+["1890s", `Frédéric Swarts invents the first chlorofluorocarbons to be applied as refrigerant.`],
+["1890", `Clément Ader invents the first aircraft, airplane, fly machine called Eole (aircraft) or Ader Éole`],
+["1891", `Whitcomb Judson invents the zipper.`],
+["1892", `Léon Bouly invents the cinematograph.`],
+["1893", `Rudolf Diesel invents the diesel engine (although Herbert Akroyd Stuart had experimented with compression ignition before Diesel).`],
+["1895", `Guglielmo Marconi invents a system of wireless communication using radio waves.`],
+["1895", `Wilhelm Conrad Röntgen invented the first radiograph (xrays).`],
+["1898", `Hans von Pechmann synthesizes polyethylene, now the most common plastic in the world.`],
+["1899", `Waldemar Jungner invents the nickel–cadmium battery.`],
+["1900", `The first Zeppelin is designed by Theodor Kober.`],
+["1901", `The first motorized cleaner using suction, a powered "vacuum cleaner", is patented independently by British engineer Hubert Cecil Booth and American inventor David T. Kenney.`],
+["1903", `The first successful gas turbine is invented by Ægidius Elling.`],
+["1903", `Édouard Bénédictus invents laminated glass.`],
+["1903", `First manually controlled, fixed wing, motorized aircraft flies at Kitty Hawk, North Carolina by Orville and Wilbur Wright. See Claims to the first powered flight.`],
+["1904", `The Fleming valve, the first vacuum tube and diode, is invented by John Ambrose Fleming.`],
+["1907", `The first free flight of a rotary-wing aircraft is carried out by Paul Cornu.`],
+["1907", `Leo Baekeland invents bakelite.`],
+["1908", `Cellophane is invented by Jacques E. Brandenberger.`],
+["1909", `Fritz Haber invents the Haber process.`],
+["1909", `The first instantaneous transmission of images, or television broadcast, is carried out by Georges Rignoux and A. Fournier.`],
+["1911", `The cloud chamber, the first particle detector, is invented by Charles Thomson Rees Wilson.`],
+["1913", `The Bergius process is developed by Friedrich Bergius.`],
+["1913", `The Kaplan turbine is invented by Viktor Kaplan.`],
+["1915", `The tank is invented by Ernest Swinton, although the British Royal Commission on Awards recognised a South Australian named Lance de Mole who had submitted a proposal to the British War Office, for a 'chain-rail vehicle which could be easily steered and carry heavy loads over rough ground and trenches' complete with extensive drawings. Additionally, an Austrian by the name of Günther Burstyn designed a tank and a Captain Levavasseur of the French army proposed a design.`],
+["1916", `The Czochralski process, widely used for the production of single crystal silicon, is invented by Jan Czochralski.`],
+["1917", `The crystal oscillator is invented by Alexander M. Nicholson using a crystal of Rochelle Salt although his priority was disputed by Walter Guyton Cady`],
+["1925", `The Fischer–Tropsch process is developed by Franz Fischer and Hans Tropsch at the Kaiser-Wilhelm-Institut für Kohlenforschung.`],
+["1926", `The Yagi-Uda Antenna or simply Yagi Antenna is invented by Shintaro Uda of Tohoku Imperial University, Japan, assisted by his colleague Hidetsugu Yagi. The Yagi Antenna was widely used by the US, British, and Germans during World War II. After the war they saw extensive development as home television antennas.`],
+["1926", `Robert H. Goddard launches the first liquid fueled rocket.`],
+["1927", `The quartz clock is invented by Warren Marrison and J.W. Horton at Bell Telephone Laboratories.`],
+["1928", `Penicillin is first observed to exude antibiotic substances by Nobel laureate Alexander Fleming. Development of medicinal penicillin is attributed to a team of medics and scientists including Howard Walter Florey, Ernst Chain and Norman Heatley.`],
+["1928", `Frank Whittle formally submitted his ideas for a turbo-jet engine.`],
+["1928", `Philo Farnsworth demonstrates the first practical electronic television to the press.`],
+["1929", `The ball screw is invented by Rudolph G. Boehm.`],
+["1930", `The Phase-contrast microscopy is invented by Frits Zernike.`],
+["1931", `The electron microscope is invented by Ernst Ruska.`],
+["1933", `FM radio is patented by inventor Edwin H. Armstrong.`],
+["1935", `Nylon, the first fully synthetic fiber is produced by Wallace Carothers while working at DuPont.`],
+["1938", `Z1 built by Konrad Zuse is the first freely programmable computer in the world.`],
+["1938, December", `Nuclear fission discovered in experiment by Otto Hahn (Nazi Germany), coined by Lise Meitner (fled to Sweden from Nazi-occupied Austria) and Fritz Strassman (Sweden). The Manhattan Project, and consequently the Soviet atomic bomb project were begun based on this research, as well as the German nuclear energy project, although the latter one declined as its physicists were drafted into Germany's war effort.`],
+["1939", `G. S. Yunyev or Naum Gurvich invented the electric current defibrillator`],
+["1941", `Polyester is invented by British scientists John Whinfield and James Dickson.`],
+["1942", `The V-2 rocket, the world's first long range ballistic missile, developed in Nazi Germany during World War II.`],
+["July 1945", `The atomic bomb is first successfully developed by the United States, the United Kingdom and Canada as a part of the Manhattan Project and swiftly deployed in the atomic bombings of Hiroshima and Nagasaki, effectively terminating World War II.`],
+["1946", `Sir James Martin invents the ejector seat, inspired by the death of his friend and test pilot Captain Valentine Baker in an aeroplane crash.`],
+["1947", `Holography is invented by Dennis Gabor.`],
+["1947", `Floyd Farris and J.B. Clark (Stanolind Oil and Gas Corporation) invents hydraulic fracturing technology.`],
+["December 1947", `The first transistor, a bipolar point-contact transistor, is invented by John Bardeen and Walter Brattain under the supervision of William Shockley at Bell Labs.`],
+["1948", `The first atomic clock is developed at the United States's National Bureau of Standards.`],
+["1948", `Basic oxygen steelmaking is developed by Robert Durrer. The vast majority of steel manufactured in the world is produced using the basic oxygen furnace; in 2000, it accounted for 60% of global steel output.`],
+["1952", `The float glass process is developed by Alastair Pilkington.`],
+["December 20, 1951", `First use of nuclear power to produce electricity for households in Arco, Idaho`],
+["1952", `The first thermonuclear weapon is developed by the United States of America.`],
+["1953", `The first video tape recorder, a helical scan recorder, is invented by Norikazu Sawazaki.`],
+["1954", `Invention of Solar Battery by Bell Telephone scientists, Calvin Souther Fuller, Daryl Chapin and Gerald Pearson capturing the sun's power. First practical means of collecting energy from the sun and turning it into a current of electricity.`],
+["1955", `The hovercraft is patented by Christopher Cockerell.`],
+["1955", `The intermodal container is developed by Malcom McLean.`],
+["1956", `The hard disk drive is invented by IBM.`],
+["1957", `The first personal computer used by one person and controlled by a keyboard, the IBM 610, is invented by IBM.`],
+["1957", `The first artificial satellite, Sputnik 1, is built and launched by the Soviet Union.`],
+["1958–59", `Independent invention of the integrated circuit by Jack Kilby and Robert Noyce.`],
+["1959", `The MOSFET (MOS transistor) is invented by Mohamed Atalla and Dawon Kahng at Bell Labs. It is used in almost all modern electronic products. It was smaller, faster, more reliable and cheaper to manufacture than earlier bipolar transistors, leading to a revolution in computers, controls and communication.`],
+["1960", `The first functioning laser is invented by Theodore Maiman.`],
+["1963", `The first electronic cigarette is created by Herbert A. Gilbert. Hon Lik is often credited with its invention as he developed the modern electronic cigarette and was the first to commercialize it.`],
+["1965", `Kevlar is invented by Stephanie Kwolek at DuPont.`],
+["1969", `ARPANET first deployed via UCLA, SRI, UCSB, and The University of Utah.`],
+["1970", `The pocket calculator is invented in Japan.`],
+["1971", `Email is invented by Ray Tomlinson.`],
+["1971", `The first single-chip microprocessor, the Intel 4004, is invented. Its development was led by Federico Faggin, using his silicon-gate MOS technology. This led to the personal computer (PC) revolution.`],
+["1972", `The first video game console, used primarily for playing video games on a TV, is the Magnavox Odyssey.`],
+["1973", `The first commercial graphical user interface is introduced on the Xerox Alto. The modern GUI is later popularized by the Xerox Star and Apple Lisa.`],
+["1973", `The first capacitive touchscreen is developed at CERN.`],
+["1973–74", `The Internet protocol suite (TCP/IP) is proposed by Vinton Cerf and Robert E. Kahn for the Defense Advanced Research Projects Agency (DARPA) ARPANET, creating the basis for the modern Internet.`],
+["1975", `Altair 8800 is the spark that ignited the microcomputer revolution.`],
+["1980", `Flash memory (both NOR and NAND types) is invented in Japan by Fujio Masuoka while working for Toshiba. It is formally introduced to the public later.`],
+["1982", `A CD-ROM contains data accessible to, but not writable by, a computer for data storage and music playback. The Yellow Book standard developed by Sony and Philips adapted the format to hold any form of binary data.`],
+["1983", `Stereolithography is invented by Chuck Hull`],
+["1984", `The first commercially available cell phone, the DynaTAC 8000X, is created by Motorola.`],
+["1985", `The lithium-ion battery is invented by John B. Goodenough, Rachid Yazami and Akira Yoshino. It has impacted modern consumer electronics and electric vehicles.`],
+["1990", `The World Wide Web is first introduced to the public by English engineer and computer scientist Sir Tim Berners-Lee.`],
+["1993", `Mosaic, the first popular web browser is introduced`],
+["1995", `DVD is an optical disc storage format, invented and developed by Philips, Sony, Toshiba, and Panasonic. DVDs offer higher storage capacity than Compact Discs while having the same dimensions.`]
+];
+
+const a = document.getElementById('invention-a');
+const b = document.getElementById('invention-b');
+
+    function choose() {
+        a.classList.remove('wrong');
+        a.classList.remove('correct');
+        b.classList.remove('wrong');
+        b.classList.remove('correct');
+        const i = Math.floor(Math.random() * inventions.length);
+        let j = Math.floor(Math.random() * inventions.length);
+        while (j == i) {
+            j = Math.floor(Math.random() * inventions.length);
+        }
+        a.innerHTML = inventions[i][1];
+        a.setAttribute('data-index', i);
+        b.innerHTML = inventions[j][1];
+        b.setAttribute('data-index', j);
+    }
+
+a.addEventListener('click', solve);
+b.addEventListener('click', solve);
+
+let correct = 0;
+let total = 0;
+
+function solve(event) {
+    total++;
+    const i = parseInt(a.getAttribute('data-index'));
+    const j = parseInt(b.getAttribute('data-index'));
+    a.innerHTML += ` (${inventions[i][0]})`;
+    b.innerHTML += ` (${inventions[j][0]})`;
+    switch (event.currentTarget) {
+        case a:
+            if (i <= j) {
+                correct++;
+                a.classList.add('correct');
+            } else {
+                a.classList.add('wrong');
+            }
+            break;
+        case b:
+            if (i >= j) {
+                correct++;
+                b.classList.add('correct');
+            } else {
+                b.classList.add('wrong');
+            }
+            break;
+    }
+    document.getElementById('score').innerHTML = `Score: ${correct}/${total}`;
+}
+
+choose();
+</script>
+</body>
+</html>
