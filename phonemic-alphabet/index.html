@@ -60,7 +60,7 @@ function WordGuesser() {
     }
 
     function guess(event) {
-        guessed = document.getElementById('guess').value;
+        guessed = document.getElementById('guess').value.toLowerCase();
         const parts = words[choice].split("\t");
         const answers = parts[1].split(',');
         const correct = answers.filter(a => a == guessed).length;
