@@ -21,6 +21,9 @@ h1, h3, form, section {
     padding: 0.5rem;
     margin: 0.5rem;
 }
+.spell:disabled {
+    background: gray;
+}
 
 input {
     padding: 0.5rem;
@@ -53,13 +56,16 @@ function WordGuesser() {
     }
 
     function guess(event) {
-        guessed = document.getElementById('guess').value.toLowerCase();
+        event.preventDefault();
+        const nextGuess = document.getElementById('guess').value.toLowerCase();
+        if (nextGuess == "") return;
+        if (guessed != "") return;
+        guessed = nextGuess
         const parts = words[choice].split("\t");
         const answers = parts[1].split(',');
         const correct = answers.filter(a => a == guessed).length;
         if (correct) numCorrect++;
         total++;
-        event.preventDefault();
         showAnswer = true;
         return false;
     }
@@ -82,7 +88,7 @@ function WordGuesser() {
                 m("h3", `/${question}/`),
                 m("form", {onsubmit: guess}, [
                     m("input[type=text][autocomplete=off]#guess"),
-                    m("button.spell[type=submit]", "Spell it")
+                    m("button.spell[type=submit]", { disabled: guessed && "disabled" }, "Spell it")
                 ]),
                 m("p.score", `Score: ${numCorrect}/${total}`),
                 showAnswer ? m("section", [
