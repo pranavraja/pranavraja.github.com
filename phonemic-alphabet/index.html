@@ -1,0 +1,122 @@
+<main id="main"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/2.0.4/mithril.min.js"></script>
+<style>
+h1, h3, form, section {
+    text-align: center;
+}
+.correct {
+    font-weight: bold;
+    color: darkgreen;
+}
+.wrong {
+    font-weight: bold;
+    color: darkred;
+}
+.spell {
+    background: navy;
+    color: white;
+    border: thin solid black;
+    padding: 0.5rem;
+    margin: 0.5rem;
+}
+
+input {
+    padding: 0.5rem;
+}
+
+.score {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-right: 1rem;
+}
+</style>
+<script>
+const root = document.getElementById('main');
+
+function WordGuesser() {
+    let showAnswer = false;
+    let choice = 0;
+    let guessed = '';
+    let words = [];
+    let total = 0;
+    let numCorrect = 0;
+
+    function next() {
+        choice = Math.floor(Math.random()*words.length);
+        const g = document.getElementById('guess');
+        if (g) {
+            g.value = '';
+            g.focus();
+        }
+        showAnswer = false;
+        guessed = '';
+    }
+
+    function guess(event) {
+        guessed = document.getElementById('guess').value;
+        const parts = words[choice].split("\t");
+        const answers = parts[1].split(',');
+        const correct = answers.filter(a => a == guessed).length;
+        if (correct) numCorrect++;
+        total++;
+        event.preventDefault();
+        showAnswer = true;
+        return false;
+    }
+
+    return {
+        oninit: function (vnode) {
+            words = vnode.attrs.words;
+            next();
+        },
+        view: function(vnode) {
+            const parts = words[choice].split("\t");
+            const question = parts[0];
+            const answers = parts[1].split(',');
+            const correct = answers.filter(a => a == guessed).length;
+            let message = `The correct answer is: `;
+            if (answers.length > 1)  {
+                message = `The correct answers are: `;
+            }
+            return m("section", [
+                m("h3", question),
+                m("form", {onsubmit: guess}, [
+                    m("input[type=text][autocomplete=off]#guess"),
+                    m("button.spell[type=submit]", "Spell it")
+                ]),
+                showAnswer ? m("section", [
+                    m("p", correct ? `✅` : [
+                        m("span", message),
+                        m("span.wrong", answers.join(", "))
+                    ]),
+                    m("button[type=button]", { onclick: next }, "Next")
+                ]) : null,
+                m("p.score", `Score: ${numCorrect}/${total}`)
+            ]);
+        }
+    }
+}
+
+function App() {
+    let words = null;
+
+    return {
+        oninit: function () {
+            fetch('ipa1000.txt').then(res => res.text())
+                .then(txt => {
+                    words = txt.split("\n");
+                    m.redraw();
+                })
+        },
+        view: function() {
+            return m("article", [
+                m("h1", "Spell this word, mate"),
+                words ?  m(WordGuesser, { words: words }) : m("p", "Loading...")
+            ]);
+        }
+    }
+}
+
+m.mount(root, App);
+</script>
