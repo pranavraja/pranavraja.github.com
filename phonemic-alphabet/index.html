@@ -25,13 +25,6 @@ h1, h3, form, section {
 input {
     padding: 0.5rem;
 }
-
-.score {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding-right: 1rem;
-}
 </style>
 </head>
 <body>
@@ -91,6 +84,7 @@ function WordGuesser() {
                     m("input[type=text][autocomplete=off]#guess"),
                     m("button.spell[type=submit]", "Spell it")
                 ]),
+                m("p.score", `Score: ${numCorrect}/${total}`),
                 showAnswer ? m("section", [
                     m("p", correct ? `✅` : [
                         m("span", message),
@@ -98,7 +92,6 @@ function WordGuesser() {
                     ]),
                     m("button[type=button]", { onclick: next }, "Next")
                 ]) : null,
-                m("p.score", `Score: ${numCorrect}/${total}`)
             ]);
         }
     }
