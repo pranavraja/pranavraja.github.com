@@ -1,5 +1,7 @@
-<main id="main"></main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/2.0.4/mithril.min.js"></script>
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPA tester</title>
 <style>
 h1, h3, form, section {
     text-align: center;
@@ -31,6 +33,10 @@ input {
     padding-right: 1rem;
 }
 </style>
+</head>
+<body>
+<main id="main"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/2.0.4/mithril.min.js"></script>
 <script>
 const root = document.getElementById('main');
 
@@ -120,3 +126,4 @@ function App() {
 
 m.mount(root, App);
 </script>
+</body>
