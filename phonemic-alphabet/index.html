@@ -79,7 +79,7 @@ function WordGuesser() {
                 message = `The correct answers are: `;
             }
             return m("section", [
-                m("h3", question),
+                m("h3", `/${question}/`),
                 m("form", {onsubmit: guess}, [
                     m("input[type=text][autocomplete=off]#guess"),
                     m("button.spell[type=submit]", "Spell it")
@@ -110,7 +110,7 @@ function App() {
         },
         view: function() {
             return m("article", [
-                m("h1", "Spell this word, mate"),
+                m("h1", "Spell this word, meɪt"),
                 words ?  m(WordGuesser, { words: words }) : m("p", "Loading...")
             ]);
         }
