@@ -62,7 +62,7 @@ function WordGuesser() {
         if (guessed != "") return;
         guessed = nextGuess
         const parts = words[choice].split("\t");
-        const answers = parts[1].split(',');
+        const answers = parts[1].toLowerCase().split(',');
         const correct = answers.filter(a => a == guessed).length;
         if (correct) numCorrect++;
         total++;
@@ -78,7 +78,7 @@ function WordGuesser() {
         view: function(vnode) {
             const parts = words[choice].split("\t");
             const question = parts[0];
-            const answers = parts[1].split(',');
+            const answers = parts[1].toLowerCase().split(',');
             const correct = answers.filter(a => a == guessed).length;
             let message = `The correct answer is: `;
             if (answers.length > 1)  {
