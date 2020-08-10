@@ -44,8 +44,9 @@ function WordGuesser() {
     let total = 0;
     let numCorrect = 0;
 
-    function next() {
-        choice = Math.floor(Math.random()*words.length);
+    function next(c) {
+        location.hash = '';
+        choice = c || Math.floor(Math.random()*words.length);
         const g = document.getElementById('guess');
         if (g) {
             g.value = '';
@@ -73,7 +74,7 @@ function WordGuesser() {
     return {
         oninit: function (vnode) {
             words = vnode.attrs.words;
-            next();
+            next(location.hash.slice(1));
         },
         view: function(vnode) {
             const parts = words[choice].split("\t");
@@ -96,7 +97,12 @@ function WordGuesser() {
                         m("span", message),
                         m("span.wrong", answers.join(", "))
                     ]),
-                    m("button[type=button]", { onclick: next }, "Next")
+                    m("button[type=button]", { onclick: () => { next() } }, "Next"),
+                    m("p"),
+                    m("p", [
+                        m("span","Link to this word for your meɪts: "),
+                        m("a", { href: `${window.location.protocol}//${window.location.host}${window.location.pathname}#${choice}`}, `${window.location.protocol}//${window.location.host}${window.location.pathname}#${choice}`)
+                    ])
                 ]) : null,
             ]);
         }
