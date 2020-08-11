@@ -32,103 +32,110 @@ input {
 </head>
 <body>
 <main id="main"></main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/2.0.4/mithril.min.js"></script>
-<script>
-const root = document.getElementById('main');
+<script type="module">
+  import { h, Component, render, createRef } from 'https://unpkg.com/preact@10.4.7?module';
+  import htm from 'https://unpkg.com/htm@3.0.4?module';
+  const html = htm.bind(h);
 
-function WordGuesser() {
-    let showAnswer = false;
-    let choice = 0;
-    let guessed = '';
-    let words = [];
-    let total = 0;
-    let numCorrect = 0;
+  class Answer extends Component {
+    render() {
+      const { visible, word, correct } = this.props;
+      if (!visible) return null;
+      if (correct) {
+        return html`<p>✅</p>`;
+      }
+      return html`<p>The correct answers are: <span class="wrong">${word.answers.join(', ')}</span></p>`;
+    }
+  }
 
-    function next(c) {
+  function Permalink(props) {
+    const { choice } = props;
+    const { protocol, host, pathname } = window.location;
+    const url = `${protocol}//${host}${pathname}#${choice}`;
+    return html`<p><span>Link to this word for your meɪts: </span><a href=${url}>${url}</a></p>`;
+  }
+
+  class WordGuesser extends Component {
+    constructor() {
+      super();
+      this.input = createRef();
+      this.state = { numCorrect: 0, total: 0 };
+    }
+    componentWillMount() {
+      this.next();
+    }
+    next() {
+      const { words } = this.props;
+      let choice = Math.floor(Math.random()*words.length);
+      if (location.hash.slice(1)) {
+        choice = parseInt(location.hash.slice(1));
         location.hash = '';
-        choice = c || Math.floor(Math.random()*words.length);
-        const g = document.getElementById('guess');
-        if (g) {
-            g.value = '';
-            g.focus();
-        }
-        showAnswer = false;
-        guessed = '';
+      }
+      this.setState({ choice, guessed: false, correct: false });
+      const { current } = this.input;
+      if (current) {
+        current.value = '';
+        current.focus();
+      }
     }
-
-    function guess(event) {
-        event.preventDefault();
-        const nextGuess = document.getElementById('guess').value.toLowerCase();
-        if (nextGuess == "") return;
-        if (guessed != "") return;
-        guessed = nextGuess
-        const parts = words[choice].split("\t");
-        const answers = parts[1].toLowerCase().split(',');
-        const correct = answers.filter(a => a == guessed).length;
-        if (correct) numCorrect++;
-        total++;
-        showAnswer = true;
-        return false;
+    guess(event) {
+      event.preventDefault();
+      const attempt = this.input.current.value.toLowerCase();
+      if (!attempt) return;
+      const { words } = this.props;
+      const { choice, guessed } = this.state;
+      let { numCorrect, total } = this.state;
+      if (guessed) return; // no point giving extra points if they've already guessed this round
+      const chosen = words[choice];
+      const correct = chosen.answers.filter(a => a == attempt).length;
+      total++
+      if (correct) numCorrect++;
+      this.setState({ guessed: true, correct, numCorrect, total });
     }
+    render() {
+      const { words } = this.props;
+      const { choice, guessed, correct, numCorrect, total } = this.state;
+      const chosen = words[choice];
+      return html`
+        <section>
+          <h3>/${chosen.question}/</h3>
+          <form onSubmit=${() => this.guess(event)}>
+            <input type="text" autocomplete="off" ref=${this.input}/>
+            <button type="submit" class="spell" disabled=${guessed && "disabled"}>Spell it</button>
+          </form>
+          <p class="score">Score: ${numCorrect}/${total}</p>
+          <${Answer} word=${chosen} correct=${correct} visible=${guessed} />
+          ${guessed && html`
+            <button type="button" onClick=${() => this.next()}>Next</button>
+            <${Permalink} choice=${choice} />
+          `}
+        </section>
+      `;
+    }
+  }
 
-    return {
-        oninit: function (vnode) {
-            words = vnode.attrs.words;
-            next(location.hash.slice(1));
-        },
-        view: function(vnode) {
-            const parts = words[choice].split("\t");
+  class App extends Component {
+    componentDidMount() {
+      fetch('ipa1000.txt').then(res => res.text())
+        .then(txt => {
+          const words = txt.split('\n').filter(l => l).map(line => {
+            const parts = line.split('\t');
             const question = parts[0];
             const answers = parts[1].toLowerCase().split(',');
-            const correct = answers.filter(a => a == guessed).length;
-            let message = `The correct answer is: `;
-            if (answers.length > 1)  {
-                message = `The correct answers are: `;
-            }
-            return m("section", [
-                m("h3", `/${question}/`),
-                m("form", {onsubmit: guess}, [
-                    m("input[type=text][autocomplete=off]#guess"),
-                    m("button.spell[type=submit]", { disabled: guessed && "disabled" }, "Spell it")
-                ]),
-                m("p.score", `Score: ${numCorrect}/${total}`),
-                showAnswer ? m("section", [
-                    m("p", correct ? `✅` : [
-                        m("span", message),
-                        m("span.wrong", answers.join(", "))
-                    ]),
-                    m("button[type=button]", { onclick: () => { next() } }, "Next"),
-                    m("p"),
-                    m("p", [
-                        m("span","Link to this word for your meɪts: "),
-                        m("a", { href: `${window.location.protocol}//${window.location.host}${window.location.pathname}#${choice}`}, `${window.location.protocol}//${window.location.host}${window.location.pathname}#${choice}`)
-                    ])
-                ]) : null,
-            ]);
-        }
+            return { question, answers };
+          })
+          this.setState({ words });
+        })
     }
-}
-
-function App() {
-    let words = null;
-
-    return {
-        oninit: function () {
-            fetch('ipa1000.txt').then(res => res.text())
-                .then(txt => {
-                    words = txt.split("\n");
-                    m.redraw();
-                })
-        },
-        view: function() {
-            return m("article", [
-                m("h1", "Spell this word, meɪt"),
-                words ?  m(WordGuesser, { words: words }) : m("p", "Loading...")
-            ]);
-        }
+    render() {
+      const { words } = this.state;
+      return html`<article><h1>Spell this word, meɪt</h1>${
+        words ? html`<${WordGuesser} words=${words} />` : html`<h3>Loading...</h3>`
+      }</article>`;
     }
-}
+  }
 
-m.mount(root, App);
+  render(html`<${App} name="World" />`, document.getElementById('main'));
 </script>
 </body>
+</html>
