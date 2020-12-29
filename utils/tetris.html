@@ -1,7 +1,6 @@
 <html>
     <head>
         <title>Tetris</title>
-		<script src="http://code.jquery.com/jquery.min.js"></script>
         <script>
             o = [[0,0],[0,1],[1,0],[1,1]];
             j = [[0,0],[0,1],[1,1],[2,1]];
@@ -142,7 +141,7 @@
 
             function rotate() {
 				currentRotation -= 90;
-				$('body').css({"-moz-transform" : "rotate(" + currentRotation + "deg)", "-webkit-transform" : "rotate(" + currentRotation + "deg)"});
+                document.body.style.transform = `rotate(${currentRotation}deg)`;
                 a = currp[(currrot+1)%currp.length];
                 for (i=0; i < a.length; i++) {
                     if (sc[a[i][1]+cy][a[i][0]+cx] == 1) {
