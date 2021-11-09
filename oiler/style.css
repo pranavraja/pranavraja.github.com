@@ -1,0 +1,13 @@
+
+
+html {
+	background: lightgray;
+}
+
+body {
+	background: white;
+	max-width: 40rem;
+	margin: 0 auto;
+	border: thin outset black;
+	padding: 1rem;
+}
