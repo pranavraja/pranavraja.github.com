@@ -1,0 +1,254 @@
+{
+    "Metrics": [
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "FreeableMemory",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "NetworkReceiveThroughput",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "ReplicationSlotDiskUsage",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "OldestReplicationSlotLag",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "ReadIOPS",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "DBLoad",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "MaximumUsedTransactionIDs",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "WriteIOPS",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "EBSByteBalance%",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "FreeStorageSpace",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "SwapUsage",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "EBSIOBalance%",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "DBLoadCPU",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "TransactionLogsGeneration",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "DatabaseConnections",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "TransactionLogsDiskUsage",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "ReadLatency",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "CPUUtilization",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "DBLoadNonCPU",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "NetworkTransmitThroughput",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "ReadThroughput",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "WriteThroughput",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "BurstBalance",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "WriteLatency",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        },
+        {
+            "Namespace": "AWS/RDS",
+            "MetricName": "DiskQueueDepth",
+            "Dimensions": [
+                {
+                    "Name": "DBInstanceIdentifier",
+                    "Value": "mydbinstance"
+                }
+            ]
+        }
+    ]
+}

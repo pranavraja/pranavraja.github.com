@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>5. JSON transform</title>
+  <meta name="GENERATOR" content="Blackfriday Markdown Processor v1.5" />
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="/oiler/style.css" />
+</head>
+<body>
+
+<h1>5. JSON transform</h1>
+
+<p><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/working_with_metrics.html">AWS cloudwatch metrics</a> can be listed using the <a href="https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudwatch/list-metrics.html">list-metrics</a> operation, which generates a response like this:</p>
+
+<pre><code class="language-json">{
+    &quot;Metrics&quot;: [
+        {
+            &quot;Namespace&quot;: &quot;AWS/RDS&quot;,
+            &quot;MetricName&quot;: &quot;DBLoad&quot;,
+            &quot;Dimensions&quot;: [
+                {
+                    &quot;Name&quot;: &quot;DBInstanceIdentifier&quot;,
+                    &quot;Value&quot;: &quot;mydbinstance&quot;
+                }
+            ]
+        },
+        {
+            &quot;Namespace&quot;: &quot;AWS/RDS&quot;,
+            &quot;MetricName&quot;: &quot;FreeableMemory&quot;,
+            &quot;Dimensions&quot;: [
+                {
+                    &quot;Name&quot;: &quot;DBInstanceIdentifier&quot;,
+                    &quot;Value&quot;: &quot;mydbinstance&quot;
+                }
+            ]
+        },
+        {
+            &quot;Namespace&quot;: &quot;AWS/RDS&quot;,
+            &quot;MetricName&quot;: &quot;ReadIOPS&quot;,
+            &quot;Dimensions&quot;: [
+                {
+                    &quot;Name&quot;: &quot;DBInstanceIdentifier&quot;,
+                    &quot;Value&quot;: &quot;mydbinstance&quot;
+                }
+            ]
+        },
+        ...
+    ]
+}
+</code></pre>
+
+<p>We can transform the above response into a &ldquo;metric widget request&rdquo; (compatible with <a href="https://awscli.amazonaws.com/v2/documentation/api/latest/reference/cloudwatch/get-metric-widget-image.html">get-metric-widget-image</a>), to let us graph these metrics. This results in the following compact JSON:</p>
+
+<pre><code class="language-json">{&quot;metrics&quot;:[[&quot;AWS/RDS&quot;,&quot;DBLoad&quot;,&quot;DBInstanceIdentifier&quot;,&quot;mydbinstance&quot;],[&quot;AWS/RDS&quot;,&quot;FreeableMemory&quot;,&quot;DBInstanceIdentifier&quot;,&quot;mydbinstance&quot;],[&quot;AWS/RDS&quot;,&quot;ReadIOPS&quot;,&quot;DBInstanceIdentifier&quot;,&quot;mydbinstance&quot;]]}
+</code></pre>
+
+<p>Note: <code>metrics</code> is an array of arrays. Each sub-array contains the namespace and metric name, followed by the dimensions.</p>
+
+<hr />
+
+<p>Transform this json file of 25 metrics: <a href="testdata/metrics.json">metrics.json</a> into a &ldquo;metric widget request&rdquo; of compact JSON containing all the metrics.</p>
+
+<p><textarea id="answer" rows="10" cols="50" placeholder="paste your answer here" data-hash="8bff2c62d8217c7bb8c238ab1250071bdb2111e737b4570b6c37ed36de8c1942"></textarea></p>
+
+<p><button id="check" type="button">Submit</button></p>
+
+<script src="/oiler/validate.js"></script>
+
+<p><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script></p>
+
+</body>
+</html>
