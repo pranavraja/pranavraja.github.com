@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>7. HMAC</title>
+  <meta name="GENERATOR" content="Blackfriday Markdown Processor v1.5" />
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="/oiler/style.css" />
+</head>
+<body>
+
+<h1>7. HMAC</h1>
+
+<p>The <a href="https://en.wikipedia.org/wiki/HMAC#Examples">HMAC-SHA256</a> value is commonly used to sign inputs (such as HTTP requests) with a secret key to ensure they aren&rsquo;t tampered with in transit.</p>
+
+<p>The hacm-sha256 based &ldquo;signature&rdquo; of the text <code>The quick brown fox jumps over the lazy dog</code>, with the key <code>key</code>, and encoded using a <a href="https://datatracker.ietf.org/doc/html/rfc4648#section-5">base64 URL-safe encoding</a>, is:</p>
+
+<pre><code>97yD9DBThCSxMpjmqm-xQ-9NWaFJRhdZl0edvC0aPNg=
+</code></pre>
+
+<hr />
+
+<p>What are the equivalent signatures for these inputs? (one input per line, one signature per line):</p>
+
+<pre><code>happen alphabet softly theory
+GET /validate HTTP/1.1
+f35f1e0d34fbb472dffb6c650c3871b2
+</code></pre>
+
+<p><textarea id="answer" rows="10" cols="20" placeholder="paste your answer here" data-hash="6df5c474b62b9a08412bc563c51c83fa3dcb0771f97b5aeb835d418aa1e41dcc"></textarea></p>
+
+<p><button id="check" type="button">Submit</button></p>
+
+<script src="/oiler/validate.js"></script>
+
+</body>
+</html>
