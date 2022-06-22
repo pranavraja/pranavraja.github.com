@@ -22,18 +22,28 @@ button {
     padding-left: 1rem;
     padding-right: 1rem;
     font-weight: bold;
+    font-size: 1.5rem;
     cursor: pointer;
+    float: right;
+}
+main {
+    max-width: 60rem;
+    margin: 0 auto;
+    font-size: 2rem;
+    padding: 1rem;
 }
 </style>
 </head>
 <body>
-<h2>Which came first?</h2>
-<ol>
-    <li id="invention-a"></li>
-    <li id="invention-b"></li>
-</ol>
-<button type="button" onClick="choose()">Next &rarr;</button>
-<p id="score"></p>
+    <main>
+        <h2>Which came first?</h2>
+        <ol>
+            <li id="invention-a"></li>
+            <li id="invention-b"></li>
+        </ol>
+        <button type="button" onClick="choose()">Next &rarr;</button>
+        <p id="score"></p>
+    </main>
 <script>
 let inventions = [
 ["1st century", `The Aeolipile, a simple steam turbine is recorded by Hero of Alexandria.`],
