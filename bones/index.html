@@ -1,0 +1,48 @@
+<style>
+main {
+    width: 500px;
+    margin: 0 auto;
+    text-align: center;
+}
+p, a {
+    color: white;
+}
+p#msg {
+    font-family: fantasy;
+    text-transform: uppercase;
+    font-size: 120%;
+}
+p.link {
+    text-align: right;
+}
+</style>
+
+<body bgcolor="black">
+<main>
+<canvas id="canvas" width="500" height="500"></canvas>
+<p id="msg">
+    WELCOME.
+</p>
+<p class="link">
+<a href="javascript:walk()" style="font-weight: bold">Start game</a>
+</p>
+</main>
+
+<script src="https://unpkg.com/@rive-app/canvas@1.0.79"></script>
+<script>
+    animation = new rive.Rive({
+        src: './reaper.riv',
+        canvas: document.getElementById("canvas"),
+        autoplay: true
+    });
+    function walk() {
+        animation.play('walk');
+        document.querySelector('p#msg').innerHTML = 'COME WITH ME.';
+        setTimeout(() => {
+            document.querySelector('canvas').style.visibility = 'hidden';
+            document.querySelector('p#msg').innerHTML = '';
+            document.querySelector('p.link').innerHTML = 'Brought to you by P Money. See more work at <a href="https://github.com/pranavraja">Github</a>.';
+        }, 3000);
+    }
+</script>
+</body>
