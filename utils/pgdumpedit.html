@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<body>
+    <h2>Edit data in your pg_dump output</h2>
+    <p>The <a href="https://www.postgresql.org/docs/current/app-pgdump.html">pg_dump</a> command is cool, especially with the <code>--table</code> flag to dump a specific table into text format, useful for test scaffolding.</p>
+    <p>But it's a pain if you want to make edits to the tab-delimited row output, especially if you are not a vim master.</p>
+    <p>So here's a simple tool to make that easier.</p>
+    <style>
+    td, th {
+        border: thin solid black;
+    }
+    table {
+        margin: 0.5rem;
+        border-collapse: collapse;
+        empty-cells: show;
+    }
+    #warning {
+        font-weight: bold;
+        color: darkred;
+    }
+    </style>
+    <script>
+        // Parses from the pg_dump output | sed -n '/^COPY/,/^--/p' => an array of tables and data
+        function parseTables(txt) {
+            const lines = txt.split('\n');
+            let tables = [];
+            let warning = '';
+            let currentTable = {
+                header: [],
+                data: []
+            };
+            lines.forEach(line => {
+                if (line == "\\.") {
+                    tables.push(currentTable);
+                    currentTable = {header: [], data: []};
+                } else if (currentTable.header.length) {
+                    const cols = line.split('\t');
+                    if (cols.length != currentTable.header.length) {
+                        warning = `WARNING: bad row format in ${currentTable.name}`;
+                    }
+                    currentTable.data.push(cols);
+                } else if (line.match(/^COPY/)) {
+                    const cols = line.match(/\((.+)\)/)[1].replace(/^\(|\)$/g, '').split(', ');
+                    const tablename = line.match(/^COPY ([\w.]+)/)[1];
+                    currentTable.header = cols;
+                    currentTable.name = tablename;
+                }
+            });
+            document.getElementById('warning').innerText = warning;
+            return tables;
+        }
+
+        function serializeTable() {
+            const slice = Array.prototype.slice;
+            const allTables = slice.call(document.querySelectorAll('#tables table'));
+            const allData =  allTables.map(table => {
+                let currentTable = {};
+                currentTable.name = table.querySelector('th').innerText;
+                currentTable.header = slice.call(table.querySelectorAll('th.column')).map(col => col.innerText);
+                currentTable.data = slice.call(table.querySelectorAll('tr.data')).map(row => slice.call(row.querySelectorAll('td')).map(col => col.innerText));
+                return currentTable;
+            });
+            const raw = allData.map(function (table) {
+                const {name, header, data} = table;
+                return `COPY ${name} (${header.join(', ')}) FROM stdin;\n${data.map(d => d.join('\t')).join('\n')}\n\\.\n\n\n--\n`
+            }).join('\n');
+            document.querySelector('#raw').value = raw;
+        }
+    </script>
+    <main x-data="{raw: ''}">
+        <section id="tables">
+        <template x-for="table in parseTables(raw)">
+        <table contenteditable="true" onInput="serializeTable()">
+        <tr><th x-bind:colspan="table.header.length" x-text="table.name"></th></tr>
+        <tr>
+        <template x-for="col in table.header">
+        <th class="column" x-text="col"></th>
+        </template>
+        </tr>
+        <template x-for="row in table.data">
+        <tr class="data">
+            <template x-for="col in row">
+                <td x-text="col"></td>
+            </template>
+        </tr>
+        </template>
+        </table>
+        <p x-text="table.header"></p>
+        </table>
+        </template>
+        </section>
+
+        <section>
+        <label>Paste your raw output here:</label><br>
+        <span id="warning"></span><br>
+        <textarea id="raw" x-model="raw" rows="40" cols="100"></textarea>
+        </section>
+
+    </main>
+    <script src="https://unpkg.com/alpinejs@3.12.3" defer></script>
+
+</body>
