@@ -22,11 +22,11 @@ textarea {
 <br>
 <textarea rows="10" cols="40" wrap="soft" spellcheck="false" x-model="graph" x-ref="source" @keydown.cmd.enter="preview()"></textarea><br>
 <button x-show="graph == ''" @click="snippet('flowchart LR\n')">flowchart</button>
-<button x-show="graph == ''" @click="snippet('flowchart\n')">sequenceDiagram</button>
+<button x-show="graph == ''" @click="snippet('sequenceDiagram\n')">sequenceDiagram</button>
 <button x-show="graph.match(/^flowchart/)" @click="snippet(' --> ')">--&gt;</button>
 <button x-show="graph.match(/^sequenceDiagram/)" @click="snippet(' ->>+ ')">-&gt;&gt;+</button>
-<button x-show="graph.match(/^sequenceDiagram/)" @click="snippet(' ->>- ')">-&gt;&gt;-</button>
-<button x-show="graph.match(/^sequenceDiagram/)" @click="snippet('note left of ')">-&gt;&gt;-</button>
+<button x-show="graph.match(/^sequenceDiagram/)" @click="snippet('<br>')">&lt;br&gt;</button>
+<button x-show="graph.match(/^sequenceDiagram/)" @click="snippet('note left of ')">note left of</button>
 <br>
 <footer>
 <pre class="mermaid" x-text="graph">
