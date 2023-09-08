@@ -10,7 +10,7 @@ textarea {
 </style>
 <body>
     <main x-data="{
-        graph: '',
+        graph: $persist(''),
         snippet: function (txt) {
             const cursor = $refs.source.selectionStart;
             $refs.source.value = $refs.source.value.slice(0, cursor) + txt + $refs.source.value.slice(cursor);
@@ -34,7 +34,8 @@ textarea {
 </footer>
 </main>
 
-<script src="//unpkg.com/alpinejs@3.12.3" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.13.0/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/alpinejs@3.12.3" defer></script>
 
 <script type="module">
 import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
