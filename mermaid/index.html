@@ -60,7 +60,10 @@ mermaid.run({querySelector: 'pre.mermaid'});
         const img = new Image();
         const clipboardData = new Promise(function (resolve, reject) {
             img.onload = function () {
-                canvas.getContext("2d").drawImage(this, 0, 0);
+                const ctx = canvas.getContext("2d");
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(this, 0, 0);
                 const blob = canvas.toBlob(function (data) {
                     resolve(data);
                 });
