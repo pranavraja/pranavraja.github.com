@@ -69,10 +69,20 @@ mermaid.run({querySelector: 'pre.mermaid'});
                     resolve(data);
                 });
             };
+            img.onerror = function (e) {
+                console.warn(e);
+            };
         });
         navigator.clipboard.write([new ClipboardItem({
             'image/png': clipboardData,
         })]);
-        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(node.outerHTML)}`;
+        let codez = node.outerHTML;
+        // mermaid generates invalid XML with unclosed br tags,
+        // even if you use \n in the source.
+        // See https://github.com/mermaid-js/mermaid/issues/1766
+        // the workaround suggested (using htmlLabels: false),
+        // has other issues - it makes arrow labels too transparent :shrug:
+        codez = codez.replace('<br>', '<br/>');
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(codez)}`;
     }
 </script>
