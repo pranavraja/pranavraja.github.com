@@ -20,7 +20,7 @@ textarea {
 <button x-show="graph" onClick="preview()">Preview</button>
 <button x-show="graph" onClick="copySVG(document.querySelector('svg'))">Copy as PNG</button>
 <br>
-<textarea rows="10" cols="40" wrap="soft" spellcheck="false" x-model="graph" x-ref="source" @keydown.cmd.enter="preview()"></textarea><br>
+<textarea rows="10" cols="40" wrap="soft" spellcheck="false" x-model="graph" x-ref="source" @keydown.cmd.enter="preview()" @keydown.cmd.slash="graph.match(/^flowchart/) ? snippet(' --> ') : snippet(' ->>+ ')"></textarea><br>
 <button x-show="graph == ''" @click="snippet('flowchart LR\n')">flowchart</button>
 <button x-show="graph == ''" @click="snippet('sequenceDiagram\n')">sequenceDiagram</button>
 <button x-show="graph.match(/^flowchart/)" @click="snippet(' --> ')">--&gt;</button>
