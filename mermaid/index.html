@@ -19,6 +19,7 @@ textarea {
     }">
 <button x-show="graph" onClick="preview()">Preview</button>
 <button x-show="graph" onClick="copySVG(document.querySelector('svg'))">Copy as PNG</button>
+<a x-bind:href="permalink(graph)">Permalink</a>
 <br>
 <textarea rows="10" cols="40" wrap="soft" spellcheck="false" x-model="graph" x-ref="source" @keydown.cmd.enter="preview()" @keydown.cmd.slash="graph.match(/^flowchart/) ? snippet(' --> ') : snippet(' ->>+ ')"></textarea><br>
 <button x-show="graph == ''" @click="snippet('flowchart LR\n')">flowchart</button>
@@ -50,6 +51,13 @@ mermaid.run({querySelector: 'pre.mermaid'});
 </script>
 
 <script>
+function permalink(text) {
+    const merm = {
+        code: text,
+        mermaid: {theme: "default"},
+    }
+    return `https://mermaid.live/edit#base64:${btoa(JSON.stringify(merm))}`
+}
     function copySVG(node) {
         if (!node) return;
         const canvas = document.createElement("canvas");
