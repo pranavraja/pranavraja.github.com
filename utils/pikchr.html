@@ -1,0 +1,103 @@
+<!doctype html>
+<head>
+    <title>Pikchr previewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<style>
+    textarea {
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+    #diagram pre {
+        color: darkred;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.13.0/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/alpinejs@3.14.1" defer></script>
+
+<script type="module">
+    import loadPikchr from "https://esm.sh/pikchr-js@0.1.1";
+    const pikchr = loadPikchr();
+
+    window.preview = async function (markup) {
+        return pikchr.then((render) => {
+            const output = render(markup, "", 0, 400, 400);
+            if (!output.startsWith("<svg")) {
+                throw output;
+            }
+            return output;
+        });
+    };
+</script>
+<main
+    x-data="{
+    graph: location.hash.slice(1).startsWith('base64:') ? atob(location.hash.split(':')[1]) : $persist(''),
+    async loadPreview() {
+        const markup = this.graph;
+        try {
+            const res = await preview(markup);
+            document.getElementById('diagram').innerHTML = res;
+        } catch (e) {
+            document.getElementById('diagram').innerHTML = `<pre>${e}</pre>`;
+        }
+    }
+}"
+>
+    <button x-show="graph" @click="loadPreview()">Preview</button>
+    <button x-show="graph" onClick="copySVG(document.querySelector('svg'))">
+        Copy as PNG
+    </button>
+    <a x-bind:href="permalink(graph)">Permalink</a>
+    <br />
+    <textarea
+        rows="10"
+        cols="40"
+        wrap="soft"
+        spellcheck="false"
+        x-model="graph"
+        x-ref="source"
+        @keydown.cmd.enter="loadPreview()"
+    >
+    </textarea>
+    <br />
+    <br />
+    <footer id="diagram"></footer>
+</main>
+
+<script>
+    function permalink(text) {
+        return `${location.href.replace(location.hash, "")}#base64:${btoa(text)}`;
+    }
+
+    function copySVG(node) {
+        if (!node) return;
+        const canvas = document.createElement("canvas");
+        canvas.width = node.clientWidth * window.devicePixelRatio;
+        canvas.height = node.clientHeight * window.devicePixelRatio;
+        node.setAttribute("width", canvas.width);
+        node.setAttribute("height", canvas.height);
+        node.removeAttribute("style");
+        const img = new Image();
+        const clipboardData = new Promise(function (resolve, reject) {
+            img.onload = function () {
+                const ctx = canvas.getContext("2d");
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(this, 0, 0);
+                const blob = canvas.toBlob(function (data) {
+                    resolve(data);
+                });
+            };
+            img.onerror = function (e) {
+                console.warn(e);
+            };
+        });
+        navigator.clipboard.write([
+            new ClipboardItem({
+                "image/png": clipboardData,
+            }),
+        ]);
+        let codez = node.outerHTML;
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(codez)}`;
+    }
+</script>
