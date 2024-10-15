@@ -48,6 +48,13 @@
         Copy as PNG
     </button>
     <a x-bind:href="permalink(graph)">Permalink</a>
+    <button
+        title="remove first comment (useful for animations)"
+        x-show="graph"
+        @click="graph = graph.replace('\n# ', '\n'); loadPreview()"
+    >
+        &rarrb;
+    </button>
     <br />
     <textarea
         rows="10"
