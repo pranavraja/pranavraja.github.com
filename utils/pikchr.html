@@ -98,6 +98,8 @@
             }),
         ]);
         let codez = node.outerHTML;
+        // html entities will cause the svg to be invalid
+        codez = codez.replaceAll("&nbsp;", " ");
         img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(codez)}`;
     }
 </script>
