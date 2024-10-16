@@ -12,9 +12,6 @@
         color: darkred;
     }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.13.0/dist/cdn.min.js"></script>
-<script src="https://unpkg.com/alpinejs@3.14.1" defer></script>
-
 <script type="module">
     import loadPikchr from "https://esm.sh/pikchr-js@0.1.1";
     const pikchr = loadPikchr();
@@ -29,11 +26,15 @@
         });
     };
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.13.0/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/alpinejs@3.14.1" defer></script>
+
 <main
     x-data="{
     graph: location.hash.slice(1).startsWith('base64:') ? atob(location.hash.split(':')[1]) : $persist(''),
     async loadPreview() {
         const markup = this.graph;
+        if (!markup) { return; }
         try {
             const res = await preview(markup);
             document.getElementById('diagram').innerHTML = res;
@@ -49,6 +50,7 @@
         }
     }
 }"
+    x-init="loadPreview()"
 >
     <button x-show="graph" @click="loadPreview()">Preview</button>
     <button x-show="graph" onClick="copySVG(document.querySelector('svg'))">
