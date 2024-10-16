@@ -40,6 +40,13 @@
         } catch (e) {
             document.getElementById('diagram').innerHTML = `<pre>${e}</pre>`;
         }
+    },
+    removeFirstComment() {
+        if (this.graph.match('\n/*')) {
+            this.graph = this.graph.replace('\n/*', '\n').replace('*/', '');
+        } else {
+            this.graph = this.graph.replace('\n#', '\n');
+        }
     }
 }"
 >
@@ -51,7 +58,7 @@
     <button
         title="remove first comment (useful for animations)"
         x-show="graph"
-        @click="graph = graph.replace('\n# ', '\n'); loadPreview()"
+        @click="removeFirstComment(); loadPreview()"
     >
         &rarrb;
     </button>
