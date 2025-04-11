@@ -1,0 +1,105 @@
+<!doctype html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <script>
+        function parse(report) {
+            const days = report.replace("Baby\n", "").split("\n\n");
+            const parsed = days.map((day) => {
+                const lines = day.split("\n");
+                const date = new Date();
+                date.setDate(parseInt(lines[0].split(" ")[1]));
+                let lastHour = 0;
+                let pm = false;
+                let entries = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i];
+                    let hour = parseInt(line);
+                    const rest = line.slice(line.indexOf(":") + 1);
+                    const minute = parseInt(rest);
+                    if (lastHour > 0 && hour < lastHour) {
+                        pm = true;
+                    }
+                    if (pm) {
+                        hour += 12;
+                    }
+                    date.setHours(hour);
+                    date.setMinutes(minute);
+                    entries.push({
+                        time: new Date(date),
+                        entry: line.slice(line.indexOf(" ") + 1),
+                    });
+                    if (hour < 12) {
+                        lastHour = hour;
+                    }
+                }
+                return entries;
+            });
+            return parsed.flat();
+        }
+    </script>
+    <script src="https://unpkg.com/alpinejs@3.14.9" defer="defer"></script>
+    <main
+        x-data="{
+    report: '',
+    nappies: [],
+    poos: [],
+    lastFeed: null,
+    lastSleep: null,
+    summary(report) {
+        const parsed = parse(report);
+        const now = new Date();
+        const DAY = 1000 * 3600 * 24;
+        this.nappies = parsed.filter(p => {
+            return p.entry.match(/\bnappy\b/) && now.getTime() - p.time.getTime() < DAY;
+        });
+        this.poos = this.nappies.filter(p => {
+            return p.entry.match(/\bpoo\b/);
+        });
+        const feeds = parsed.filter(p => {
+            return p.entry.match(/\bleft\b/) || p.entry.match(/\bright\b/)
+        })
+        if (feeds.length > 0) {
+            this.lastFeed = feeds[feeds.length-1].time;
+        }
+        const sleeps = parsed.filter(p => {
+            return p.entry.match(/\bsleep\b/) || p.entry.match(/\bnap\b/)
+        })
+        if (sleeps.length > 0) {
+            this.lastSleep = sleeps[sleeps.length-1].time;
+        }
+    },
+    ago(time) {
+        if (!time) return '';
+        const now = (new Date().getTime() - time.getTime())/1000;
+        const duration = {
+            hours: Math.floor(now/3600),
+            minutes: Math.floor((now%3600)/60),
+            seconds: Math.floor(now%60),
+        }
+        return new Intl.DurationFormat('en', { style: 'narrow' }).format(duration) + ' ago';
+    }
+ }"
+    >
+        <form @submit.prevent="summary(report)">
+            <label>Paste your report from notes here:</label><br />
+            <textarea x-model="report" rows="10" cols="100"></textarea><br />
+            <button type="submit">Generate summary</button>
+        </form>
+        <footer>
+            <p>
+                <b>Nappies in last 24h: </b><span x-text="nappies.length"></span
+                ><br />
+            </p>
+            <p>
+                <b>Poos in last 24h: </b><span x-text="poos.length"></span
+                ><br />
+            </p>
+            <p><b>Last feed: </b><span x-text="ago(lastFeed)"></span><br /></p>
+            <p>
+                <b>Last sleep: </b><span x-text="ago(lastSleep)"></span><br />
+            </p>
+        </footer>
+    </main>
+</body>
