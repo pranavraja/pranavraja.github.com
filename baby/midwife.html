@@ -26,10 +26,24 @@
                     }
                     date.setHours(hour);
                     date.setMinutes(minute);
-                    entries.push({
+                    let entry = {
                         time: new Date(date),
                         entry: line.slice(line.indexOf(" ") + 1),
-                    });
+                    };
+                    const endTime = line.split(" ")[0].split("-")[1];
+                    if (endTime) {
+                        let hour = parseInt(endTime);
+                        const minute = parseInt(
+                            endTime.slice(endTime.indexOf(":") + 1),
+                        );
+                        if (pm) {
+                            hour += 12;
+                        }
+                        date.setHours(hour);
+                        date.setMinutes(minute);
+                        entry.end = new Date(date);
+                    }
+                    entries.push(entry);
                     if (hour < 12) {
                         lastHour = hour;
                     }
@@ -61,24 +75,27 @@
             return p.entry.match(/\bleft\b/) || p.entry.match(/\bright\b/)
         })
         if (feeds.length > 0) {
-            this.lastFeed = feeds[feeds.length-1].time;
+            this.lastFeed = feeds[feeds.length-1];
         }
         const sleeps = parsed.filter(p => {
             return p.entry.match(/\bsleep\b/) || p.entry.match(/\bnap\b/)
         })
         if (sleeps.length > 0) {
-            this.lastSleep = sleeps[sleeps.length-1].time;
+            this.lastSleep = sleeps[sleeps.length-1];
         }
     },
-    ago(time) {
-        if (!time) return '';
-        const now = (new Date().getTime() - time.getTime())/1000;
-        const duration = {
-            hours: Math.floor(now/3600),
-            minutes: Math.floor((now%3600)/60),
-            seconds: Math.floor(now%60),
+    duration(start, end) {
+        if (!end) {
+            end = new Date();
         }
-        return new Intl.DurationFormat('en', { style: 'narrow' }).format(duration) + ' ago';
+        if (!start) return '';
+        const elapsed = (end.getTime() - start.getTime())/1000;
+        const duration = {
+            hours: Math.floor(elapsed/3600),
+            minutes: Math.floor((elapsed%3600)/60),
+            seconds: Math.floor(elapsed%60),
+        }
+        return new Intl.DurationFormat('en', { style: 'narrow' }).format(duration);
     }
  }"
     >
@@ -88,17 +105,31 @@
             <button type="submit">Generate summary</button>
         </form>
         <footer>
-            <p>
+            <p x-show="nappies.length">
                 <b>Nappies in last 24h: </b><span x-text="nappies.length"></span
                 ><br />
             </p>
-            <p>
+            <p x-show="nappies.length">
                 <b>Poos in last 24h: </b><span x-text="poos.length"></span
                 ><br />
             </p>
-            <p><b>Last feed: </b><span x-text="ago(lastFeed)"></span><br /></p>
-            <p>
-                <b>Last sleep: </b><span x-text="ago(lastSleep)"></span><br />
+            <p x-show="lastFeed">
+                <b>Last feed: </b>
+                <span x-text="duration(lastFeed?.time)"></span> ago
+                <span
+                    x-show="lastFeed?.end"
+                    x-text="` (for ${duration(lastFeed?.time, lastFeed?.end)})`"
+                ></span>
+                <br />
+            </p>
+            <p x-show="lastSleep">
+                <b>Last sleep: </b>
+                <span x-text="duration(lastSleep?.time)"></span> ago
+                <span
+                    x-show="lastSleep?.end"
+                    x-text="` (for ${duration(lastSleep?.time, lastSleep?.end)})`"
+                ></span>
+                <br />
             </p>
         </footer>
     </main>
