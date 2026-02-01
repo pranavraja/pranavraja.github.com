@@ -132,7 +132,9 @@
             // See https://github.com/mermaid-js/mermaid/issues/1766
             // the workaround suggested (using htmlLabels: false),
             // has other issues - it makes arrow labels too transparent :shrug:
-            codez = codez.replaceAll("<br>", "<br/>");
+            codez = codez
+                .replaceAll("<br>", "<br/>")
+                .replaceAll("<hr>", "<hr/>");
             img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(codez)}`;
         }
     </script>
