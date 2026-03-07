@@ -93,6 +93,24 @@
                 right: 20px;
             }
         </style>
+        <script>
+            let screenLock;
+
+            async function toggleWakelock(event) {
+                const checkbox = event.target;
+                const isOn = checkbox.checked;
+                try {
+                    if (isOn) {
+                        screenLock = await navigator.wakeLock.request("screen");
+                    } else if (screenLock) {
+                        await screenLock.release();
+                        screenLock = null;
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        </script>
     </head>
     <body>
         <div id="editorSection">
@@ -109,6 +127,14 @@
             </div>
         </div>
 
+        <label>
+            <input
+                type="checkbox"
+                id="wakelock-checkbox"
+                onChange="toggleWakelock(event)"
+            />
+            Keep screen awake
+        </label>
         <button id="editBtn">Edit Recipe</button>
 
         <div>
