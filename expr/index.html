@@ -9,6 +9,10 @@
         />
         <link
             rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/addon/hint/show-hint.min.css"
+        />
+        <link
+            rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/theme/material-darker.min.css"
         />
         <style>
@@ -185,6 +189,7 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/codemirror.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/mode/yaml/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/addon/hint/show-hint.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
         <script>
             const DEFAULT = `
@@ -211,8 +216,50 @@ c: a + b
                     Tab: (cm) => cm.execCommand("insertSoftTab"),
                     "Cmd-Enter": runApi,
                     "Ctrl-Enter": runApi,
+                    "Ctrl-Space": (cm) => cm.showHint({ hint: yamlKeyHint }),
                 },
             });
+
+            function yamlKeyHint(cm) {
+                const cursor = cm.getCursor();
+                const src = cm.getValue();
+                const lines = src.split("\n");
+
+                // collect keys defined on lines strictly above the cursor
+                const keys = [];
+                for (let i = 0; i < cursor.line; i++) {
+                    const m = lines[i].match(/^([a-zA-Z_][\w-]*):/);
+                    if (m && !keys.includes(m[1])) keys.push(m[1]);
+                }
+
+                // find the word being typed at the cursor
+                const lineText = cm.getLine(cursor.line);
+                const start = cursor.ch - 1;
+                let wordStart = start;
+                while (wordStart > 0 && /\w/.test(lineText[wordStart - 1]))
+                    wordStart--;
+                const typed = lineText.slice(wordStart, cursor.ch);
+
+                const list = keys.filter(
+                    (k) => k.startsWith(typed) && k !== typed,
+                );
+                if (!list.length) return null;
+
+                return {
+                    list,
+                    from: CodeMirror.Pos(cursor.line, wordStart),
+                    to: CodeMirror.Pos(cursor.line, cursor.ch),
+                };
+            }
+
+            // trigger hint automatically while typing word characters
+            function triggerHintIfNeeded(cm) {
+                const cursor = cm.getCursor();
+                const ch = cm.getLine(cursor.line)[cursor.ch - 1];
+                if (ch && /\w/.test(ch)) {
+                    cm.showHint({ hint: yamlKeyHint, completeSingle: false });
+                }
+            }
 
             const STORAGE_KEY = "govaluate-editor-content";
 
@@ -228,9 +275,10 @@ c: a + b
             }
 
             cm.setValue(loadInitialContent());
-            cm.on("change", (cm) => {
+            cm.on("change", (cm, change) => {
                 localStorage.setItem(STORAGE_KEY, cm.getValue());
                 validate();
+                if (change.origin === "+input") triggerHintIfNeeded(cm);
             });
 
             const statusEl = document.getElementById("status");
