@@ -151,6 +151,11 @@
                 color: var(--color-text-success);
                 opacity: 1;
             }
+            .cm-matchhighlight {
+                background: rgba(255, 200, 0, 0.25);
+                border-radius: 2px;
+                outline: 1px solid rgba(255, 200, 0, 0.4);
+            }
             @media (max-width: 600px) {
                 .CodeMirror .val-hint-gutter {
                     min-width: 110px;
@@ -190,6 +195,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/codemirror.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/mode/yaml/yaml.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/addon/hint/show-hint.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/addon/search/match-highlighter.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
         <script src="wasm_exec.js"></script>
         <script>
@@ -227,6 +233,10 @@ c: a + b
                 indentWithTabs: false,
                 lineWrapping: false,
                 autofocus: true,
+                highlightSelectionMatches: {
+                    showToken: /\w/,
+                    annotateScrollbar: false,
+                },
                 extraKeys: {
                     Tab: (cm) => cm.execCommand("insertSoftTab"),
                     "Cmd-Enter": runApi,
