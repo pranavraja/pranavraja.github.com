@@ -394,6 +394,7 @@ c: a + b
                         apiValues = await res.json();
                     }
                     updateGutter(buildLineValueMap(cm.getValue(), apiValues));
+                    location.replace("#" + btoa(cm.getValue()));
                     statusEl.textContent = "Done";
                     statusEl.className = "badge";
                     setTimeout(() => {
