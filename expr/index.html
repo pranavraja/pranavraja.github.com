@@ -1,0 +1,361 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/codemirror.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/theme/material-darker.min.css"
+        />
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: var(--font-sans, sans-serif);
+                background: var(--color-background-tertiary);
+                color: var(--color-text-primary);
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .toolbar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 9px 14px;
+                background: var(--color-background-primary);
+                border-bottom: 0.5px solid var(--color-border-tertiary);
+                flex-shrink: 0;
+            }
+            .toolbar-title {
+                font-size: 14px;
+                font-weight: 500;
+            }
+            .badge {
+                font-size: 11px;
+                padding: 2px 9px;
+                border-radius: 999px;
+                background: var(--color-background-success);
+                color: var(--color-text-success);
+                transition:
+                    background 0.2s,
+                    color 0.2s;
+            }
+            .badge.error {
+                background: var(--color-background-danger);
+                color: var(--color-text-danger);
+            }
+            .badge.warning {
+                background: var(--color-background-warning);
+                color: var(--color-text-warning);
+            }
+            .spacer {
+                flex: 1;
+            }
+            .btn {
+                font-family: var(--font-sans);
+                font-size: 12px;
+                padding: 5px 12px;
+                border: 0.5px solid var(--color-border-secondary);
+                border-radius: var(--border-radius-md);
+                background: transparent;
+                color: var(--color-text-primary);
+                cursor: pointer;
+            }
+            .btn:hover {
+                background: var(--color-background-secondary);
+            }
+
+            .main {
+                display: flex;
+                flex: 1;
+                overflow: hidden;
+            }
+            .editor-pane {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .pane-label {
+                font-size: 11px;
+                color: var(--color-text-tertiary);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                padding: 5px 14px;
+                background: var(--color-background-secondary);
+                border-bottom: 0.5px solid var(--color-border-tertiary);
+                flex-shrink: 0;
+            }
+
+            .cm-wrap {
+                flex: 1;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            .CodeMirror {
+                flex: 1;
+                height: 100%;
+                font-family: var(--font-mono, monospace) !important;
+                font-size: 13px;
+                line-height: 1.6;
+            }
+            .CodeMirror-scroll {
+                flex: 1;
+            }
+
+            .error-bar {
+                font-size: 12px;
+                color: var(--color-text-danger);
+                padding: 7px 14px;
+                background: var(--color-background-danger);
+                border-top: 0.5px solid var(--color-border-tertiary);
+                display: none;
+                flex-shrink: 0;
+                line-height: 1.5;
+            }
+
+            /* value hint gutter */
+            .CodeMirror .val-hint-gutter {
+                min-width: 220px;
+            }
+            .CodeMirror-gutter-elt .val-hint {
+                font-family: var(--font-mono, monospace);
+                font-size: 12px;
+                color: var(--color-text-tertiary);
+                padding-right: 16px;
+                white-space: nowrap;
+                width: 220px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block;
+                line-height: 1.6;
+                opacity: 0.75;
+                text-align: right;
+                cursor: pointer;
+            }
+            .CodeMirror-gutter-elt .val-hint.copied {
+                color: var(--color-text-success);
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="toolbar">
+            <span class="toolbar-title">Multi-expression editor</span>
+            <span class="badge" id="status">Valid</span>
+            <span class="spacer"></span>
+            <button class="btn" id="runBtn" onclick="runApi()">
+                Run <kbd style="font-size: 10px; opacity: 0.6">⌘↵</kbd>
+            </button>
+            <button class="btn" onclick="copyPermalink()">
+                Copy permalink
+            </button>
+            <button class="btn" onclick="clearEditor()">Clear</button>
+        </div>
+
+        <div class="main">
+            <div class="editor-pane">
+                <div class="pane-label">RESULTS</div>
+                <div class="cm-wrap">
+                    <textarea id="ta"></textarea>
+                </div>
+                <div class="error-bar" id="errorBar"></div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/codemirror.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/mode/yaml/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+        <script>
+            const DEFAULT = `
+a: 1
+b: 2
+c: a + b
+`;
+
+            const isDark = window.matchMedia(
+                "(prefers-color-scheme: dark)",
+            ).matches;
+
+            const GUTTER = "val-hint-gutter";
+
+            const cm = CodeMirror.fromTextArea(document.getElementById("ta"), {
+                mode: "yaml",
+                theme: isDark ? "material-darker" : "default",
+                gutters: [GUTTER, "CodeMirror-linenumbers"],
+                tabSize: 2,
+                indentWithTabs: false,
+                lineWrapping: false,
+                autofocus: true,
+                extraKeys: {
+                    Tab: (cm) => cm.execCommand("insertSoftTab"),
+                    "Cmd-Enter": runApi,
+                    "Ctrl-Enter": runApi,
+                },
+            });
+
+            const STORAGE_KEY = "govaluate-editor-content";
+
+            function loadInitialContent() {
+                const hash = window.location.hash.slice(1);
+                if (hash) {
+                    try {
+                        return atob(hash);
+                    } catch (e) {}
+                }
+                const saved = localStorage.getItem(STORAGE_KEY);
+                return saved !== null ? saved : DEFAULT;
+            }
+
+            cm.setValue(loadInitialContent());
+            cm.on("change", (cm) => {
+                localStorage.setItem(STORAGE_KEY, cm.getValue());
+                validate();
+            });
+
+            const statusEl = document.getElementById("status");
+            const errorBar = document.getElementById("errorBar");
+
+            // map from 0-based line index -> display string, given an API response object
+            function buildLineValueMap(src, apiValues) {
+                const map = {};
+                if (!apiValues || typeof apiValues !== "object") return map;
+                src.split("\n").forEach((line, i) => {
+                    const m = line.match(/^([a-zA-Z_][\w-]*):/);
+                    if (!m) return;
+                    const key = m[1];
+                    if (key in apiValues) map[i] = apiValues[key];
+                });
+                return map;
+            }
+
+            function formatVal(v) {
+                if (v === null || v === undefined) return "null";
+                if (typeof v === "object")
+                    return Array.isArray(v)
+                        ? `[${v.length}]`
+                        : `{${Object.keys(v).length}}`;
+                return String(v);
+            }
+
+            function updateGutter(lineValMap) {
+                const totalLines = cm.lineCount();
+                for (let i = 0; i < totalLines; i++) {
+                    const val = lineValMap[i];
+                    if (val !== undefined) {
+                        const el = document.createElement("span");
+                        el.className = "val-hint";
+                        el.textContent = formatVal(val);
+                        el.title = formatVal(val);
+                        el.addEventListener("click", () => {
+                            console.log(val);
+                            navigator.clipboard
+                                .writeText(formatVal(val))
+                                .then(() => {
+                                    el.classList.add("copied");
+                                    const prev = el.textContent;
+                                    el.textContent = "Copied!";
+                                    setTimeout(() => {
+                                        el.classList.remove("copied");
+                                        el.textContent = prev;
+                                    }, 1200);
+                                });
+                        });
+                        cm.setGutterMarker(i, GUTTER, el);
+                    } else {
+                        cm.setGutterMarker(i, GUTTER, null);
+                    }
+                }
+            }
+
+            function validate() {
+                try {
+                    jsyaml.load(cm.getValue());
+                    statusEl.textContent = "Valid";
+                    statusEl.className = "badge";
+                    errorBar.style.display = "none";
+                } catch (e) {
+                    statusEl.textContent = "Error";
+                    statusEl.className = "badge error";
+                    errorBar.style.display = "block";
+                    errorBar.textContent = e.message;
+                }
+            }
+
+            async function runApi() {
+                const btn = document.getElementById("runBtn");
+                btn.disabled = true;
+                btn.textContent = "Running…";
+                try {
+                    let apiValues;
+                    if (window.evaluateYaml) {
+                        apiValues = window.evaluateYaml(cm.getValue());
+                    } else {
+                        const res = await fetch("/api/evaluate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-yaml" },
+                            body: cm.getValue(),
+                        });
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        apiValues = await res.json();
+                    }
+                    updateGutter(buildLineValueMap(cm.getValue(), apiValues));
+                    statusEl.textContent = "Done";
+                    statusEl.className = "badge";
+                    setTimeout(() => {
+                        statusEl.textContent = "Valid";
+                    }, 1500);
+                } catch (e) {
+                    statusEl.textContent = "API Error";
+                    statusEl.className = "badge error";
+                    errorBar.style.display = "block";
+                    errorBar.textContent = e.message;
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML =
+                        'Run <kbd style="font-size:10px;opacity:0.6">⌘↵</kbd>';
+                }
+            }
+
+            function copyPermalink() {
+                const hash = btoa(cm.getValue());
+                const url = location.origin + location.pathname + "#" + hash;
+                navigator.clipboard.writeText(url).then(() => {
+                    const prev = [statusEl.textContent, statusEl.className];
+                    statusEl.textContent = "Copied!";
+                    statusEl.className = "badge warning";
+                    setTimeout(() => {
+                        [statusEl.textContent, statusEl.className] = prev;
+                    }, 1200);
+                });
+            }
+
+            function clearEditor() {
+                cm.setValue("");
+            }
+
+            validate();
+        </script>
+        <script src="wasm_exec.js"></script>
+        <script>
+            if (!location.search.includes("go=1")) {
+                const go = new Go();
+                WebAssembly.instantiateStreaming(
+                    fetch("main.wasm"),
+                    go.importObject,
+                ).then((result) => {
+                    go.run(result.instance); // Starts the Go runtime
+                });
+            }
+        </script>
+    </body>
+</html>
