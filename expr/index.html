@@ -191,6 +191,21 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/mode/yaml/yaml.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.17/addon/hint/show-hint.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+        <script src="wasm_exec.js"></script>
+        <script>
+            if (!location.search.includes("go=1")) {
+                window.wasmReady = new Promise((resolve) => {
+                    const go = new Go();
+                    WebAssembly.instantiateStreaming(
+                        fetch("main.wasm"),
+                        go.importObject,
+                    ).then((result) => {
+                        go.run(result.instance); // Starts the Go runtime
+                        resolve();
+                    });
+                });
+            }
+        </script>
         <script>
             const DEFAULT = `
 a: 1
@@ -356,7 +371,8 @@ c: a + b
                 btn.textContent = "Running…";
                 try {
                     let apiValues;
-                    if (window.evaluateYaml) {
+                    if (window.wasmReady) {
+                        await window.wasmReady;
                         apiValues = window.evaluateYaml(cm.getValue());
                     } else {
                         const res = await fetch("/api/evaluate", {
@@ -403,18 +419,7 @@ c: a + b
             }
 
             validate();
-        </script>
-        <script src="wasm_exec.js"></script>
-        <script>
-            if (!location.search.includes("go=1")) {
-                const go = new Go();
-                WebAssembly.instantiateStreaming(
-                    fetch("main.wasm"),
-                    go.importObject,
-                ).then((result) => {
-                    go.run(result.instance); // Starts the Go runtime
-                });
-            }
+            runApi();
         </script>
     </body>
 </html>
