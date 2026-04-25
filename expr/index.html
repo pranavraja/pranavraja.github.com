@@ -110,7 +110,7 @@
                 flex: 1;
                 height: 100%;
                 font-family: var(--font-mono, monospace) !important;
-                font-size: 13px;
+                font-size: 15px;
                 line-height: 1.6;
             }
             .CodeMirror-scroll {
@@ -118,7 +118,7 @@
             }
 
             .error-bar {
-                font-size: 12px;
+                font-size: 14px;
                 color: var(--color-text-danger);
                 padding: 7px 14px;
                 background: var(--color-background-danger);
@@ -142,7 +142,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 display: block;
-                line-height: 1.6;
+                line-height: 24px;
                 opacity: 0.75;
                 text-align: right;
                 cursor: pointer;
@@ -165,7 +165,7 @@
     </head>
     <body>
         <div class="toolbar">
-            <span class="toolbar-title">Multi-expression editor</span>
+            <span class="toolbar-title">YAML Calculator</span>
             <span class="badge" id="status">Valid</span>
             <span class="spacer"></span>
             <button class="btn" id="runBtn" onclick="runApi()">
