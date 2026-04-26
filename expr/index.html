@@ -213,6 +213,16 @@
             }
         </script>
         <script>
+            function fetchJSON(url) {
+                const request = new XMLHttpRequest();
+                // The third parameter 'false' makes it synchronous
+                request.open("GET", url, false);
+                request.send(null);
+
+                return request.responseText;
+            }
+        </script>
+        <script>
             const DEFAULT = `
 a: 1
 b: 2
@@ -242,6 +252,8 @@ c: a + b
                     "Cmd-Enter": runApi,
                     "Ctrl-Enter": runApi,
                     "Ctrl-Space": (cm) => cm.showHint({ hint: yamlKeyHint }),
+                    "Cmd-S": save,
+                    "Ctrl-S": save,
                 },
             });
 
@@ -427,6 +439,30 @@ c: a + b
 
             function clearEditor() {
                 cm.setValue("");
+            }
+
+            async function save() {
+                if (location.search.includes("go=1")) {
+                    try {
+                        const res = await fetch("/api/save", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-yaml" },
+                            body: cm.getValue(),
+                        });
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const prev = [statusEl.textContent, statusEl.className];
+                        statusEl.textContent = "Saved";
+                        statusEl.className = "badge";
+                        setTimeout(() => {
+                            [statusEl.textContent, statusEl.className] = prev;
+                        }, 1500);
+                    } catch (e) {
+                        statusEl.textContent = "Save Error";
+                        statusEl.className = "badge error";
+                        errorBar.style.display = "block";
+                        errorBar.textContent = e.message;
+                    }
+                }
             }
 
             validate();
