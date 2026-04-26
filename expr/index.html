@@ -213,13 +213,17 @@
             }
         </script>
         <script>
+            let cache = {};
             function fetchJSON(url) {
+                if (cache[url]) return cache[url];
                 const request = new XMLHttpRequest();
                 // The third parameter 'false' makes it synchronous
+                // we need this for easier WASM interop. Sorry.
                 request.open("GET", url, false);
                 request.send(null);
 
-                return request.responseText;
+                cache[url] = request.responseText;
+                return cache[url];
             }
         </script>
         <script>
