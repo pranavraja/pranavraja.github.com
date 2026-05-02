@@ -225,6 +225,7 @@
             }
             .jv-node {
                 display: block;
+                white-space: nowrap;
             }
             .jv-toggle {
                 display: inline-block;
@@ -255,6 +256,7 @@
                 font-size: 11px;
             }
             .jv-children {
+                display: block;
                 padding-left: 1.6em;
             }
             .jv-children.collapsed {
@@ -594,7 +596,7 @@ c: a + b
             }
 
             function buildJsonTree(value, key) {
-                const node = document.createElement("span");
+                const node = document.createElement("div");
                 node.className = "jv-node";
 
                 if (value !== null && typeof value === "object") {
@@ -623,7 +625,7 @@ c: a + b
                     t.textContent = typeName;
                     label.appendChild(t);
 
-                    const children = document.createElement("span");
+                    const children = document.createElement("div");
                     children.className = "jv-children";
                     if (isArray) children.classList.add("collapsed");
                     entries.forEach(([k, v]) => {
