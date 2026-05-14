@@ -627,7 +627,8 @@ c: a + b
 
                     const children = document.createElement("div");
                     children.className = "jv-children";
-                    if (isArray) children.classList.add("collapsed");
+                    if (isArray && key !== undefined)
+                        children.classList.add("collapsed");
                     entries.forEach(([k, v]) => {
                         children.appendChild(buildJsonTree(v, k));
                     });
@@ -639,7 +640,7 @@ c: a + b
                         toggle.textContent = collapsed ? "▸" : "▾";
                     });
 
-                    if (isArray) toggle.textContent = "▸";
+                    if (isArray && key !== undefined) toggle.textContent = "▸";
 
                     node.appendChild(toggle);
                     node.appendChild(label);
