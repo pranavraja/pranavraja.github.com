@@ -429,12 +429,32 @@ c: a + b
 
             const STORAGE_KEY = "govaluate-editor-content";
 
+            function encodeFragment(src, cmdCache) {
+                return btoa(JSON.stringify({ src, cmdCache }));
+            }
+
+            function decodeFragment(hash) {
+                try {
+                    const decoded = atob(hash);
+                    // new format: JSON with src and cmdCache
+                    if (decoded.startsWith("{")) {
+                        const obj = JSON.parse(decoded);
+                        if (obj.src !== undefined) return obj;
+                    }
+                    // old format: plain YAML source
+                    return { src: decoded, cmdCache: {} };
+                } catch (e) {}
+                return null;
+            }
+
             function loadInitialContent() {
                 const hash = window.location.hash.slice(1);
                 if (hash) {
-                    try {
-                        return atob(hash);
-                    } catch (e) {}
+                    const decoded = decodeFragment(hash);
+                    if (decoded) {
+                        window._cmdCache = decoded.cmdCache || {};
+                        return decoded.src;
+                    }
                 }
                 const saved = localStorage.getItem(STORAGE_KEY);
                 return saved !== null ? saved : DEFAULT;
@@ -533,10 +553,18 @@ c: a + b
                             body: cm.getValue(),
                         });
                         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                        apiValues = await res.json();
+                        const data = await res.json();
+                        apiValues = data.values;
+                        window._cmdCache = data.cmdCache || {};
                     }
                     updateGutter(buildLineValueMap(cm.getValue(), apiValues));
-                    location.replace("#" + btoa(cm.getValue()));
+                    location.replace(
+                        "#" +
+                            encodeFragment(
+                                cm.getValue(),
+                                window._cmdCache || {},
+                            ),
+                    );
                     statusEl.textContent = "Done";
                     statusEl.className = "badge";
                     setTimeout(() => {
@@ -555,7 +583,10 @@ c: a + b
             }
 
             function copyPermalink() {
-                const hash = btoa(cm.getValue());
+                const hash = encodeFragment(
+                    cm.getValue(),
+                    window._cmdCache || {},
+                );
                 const url = location.origin + location.pathname + "#" + hash;
                 navigator.clipboard.writeText(url).then(() => {
                     const prev = [statusEl.textContent, statusEl.className];
