@@ -504,7 +504,11 @@ c: a + b
                         el.addEventListener("click", () => {
                             showJsonPanel(val);
                             navigator.clipboard
-                                .writeText(formatVal(val))
+                                .writeText(
+                                    typeof val === "object" && val !== null
+                                        ? JSON.stringify(val, null, 2)
+                                        : formatVal(val),
+                                )
                                 .then(() => {
                                     el.classList.add("copied");
                                     const prev = el.textContent;
