@@ -429,20 +429,19 @@ c: a + b
 
             const STORAGE_KEY = "govaluate-editor-content";
 
-            function encodeFragment(src, cmdCache) {
-                return btoa(JSON.stringify({ src, cmdCache }));
+            function encodeFragment(src, cmdCache, sqlCache) {
+                return btoa(JSON.stringify({ src, cmdCache, sqlCache }));
             }
 
             function decodeFragment(hash) {
                 try {
                     const decoded = atob(hash);
-                    // new format: JSON with src and cmdCache
                     if (decoded.startsWith("{")) {
                         const obj = JSON.parse(decoded);
                         if (obj.src !== undefined) return obj;
                     }
                     // old format: plain YAML source
-                    return { src: decoded, cmdCache: {} };
+                    return { src: decoded, cmdCache: {}, sqlCache: {} };
                 } catch (e) {}
                 return null;
             }
@@ -453,6 +452,7 @@ c: a + b
                     const decoded = decodeFragment(hash);
                     if (decoded) {
                         window._cmdCache = decoded.cmdCache || {};
+                        window._sqlCache = decoded.sqlCache || {};
                         return decoded.src;
                     }
                 }
@@ -560,14 +560,11 @@ c: a + b
                         const data = await res.json();
                         apiValues = data.values;
                         window._cmdCache = data.cmdCache || {};
+                        window._sqlCache = data.sqlCache || {};
                     }
                     updateGutter(buildLineValueMap(cm.getValue(), apiValues));
                     location.replace(
-                        "#" +
-                            encodeFragment(
-                                cm.getValue(),
-                                window._cmdCache || {},
-                            ),
+                        "#" + encodeFragment(cm.getValue(), {}, {}),
                     );
                     statusEl.textContent = "Done";
                     statusEl.className = "badge";
@@ -590,6 +587,7 @@ c: a + b
                 const hash = encodeFragment(
                     cm.getValue(),
                     window._cmdCache || {},
+                    window._sqlCache || {},
                 );
                 const url = location.origin + location.pathname + "#" + hash;
                 navigator.clipboard.writeText(url).then(() => {
